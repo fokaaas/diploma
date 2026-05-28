@@ -54,12 +54,6 @@ export const sessionStore = {
     persist()
     emit()
   },
-  setRole(role: Role): void {
-    if (!session) return
-    session = { ...session, role }
-    persist()
-    emit()
-  },
   isAuthenticated(): boolean {
     return session !== null
   },
@@ -72,7 +66,6 @@ export interface AuthState {
   user: User | null
   login: (role?: Role) => void
   logout: () => void
-  setRole: (role: Role) => void
 }
 
 export function useAuth(): AuthState {
@@ -88,6 +81,5 @@ export function useAuth(): AuthState {
     user: current?.user ?? null,
     login: sessionStore.login,
     logout: sessionStore.logout,
-    setRole: sessionStore.setRole,
   }
 }

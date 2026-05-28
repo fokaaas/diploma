@@ -8,7 +8,7 @@ import { TopBar } from './TopBar'
 import { ProfileMenu } from './ProfileMenu'
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { user, role, setRole, logout } = useAuth()
+  const { user, role, logout } = useAuth()
   const navigate = useNavigate()
   const [profileOpen, setProfileOpen] = useState(false)
 
@@ -17,7 +17,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="app-shell">
-      <Sidebar role={role} onRoleChange={setRole} />
+      <Sidebar role={role} />
       <div className="main">
         <TopBar
           user={user}

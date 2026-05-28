@@ -33,13 +33,6 @@ export const NAV: NavItem[] = [
   { key: 'admin', label: 'Адміністрування', icon: 'admin', path: '/admin', roles: ['admin'] },
 ]
 
-export const ROLE_OPTIONS: { value: Role; label: string }[] = [
-  { value: 'admin', label: 'Адміністратор фонду' },
-  { value: 'coordinator', label: 'Координатор' },
-  { value: 'accountant', label: 'Бухгалтер' },
-  { value: 'auditor', label: 'Аудитор (read-only)' },
-]
-
 /** Resolve which navigation section a pathname belongs to. */
 export function sectionForPath(pathname: string): NavItem | undefined {
   if (pathname === '/') return NAV[0]
