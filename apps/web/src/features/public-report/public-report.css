@@ -1,0 +1,162 @@
+.pubreport {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 48px 32px 80px;
+}
+.pubreport__hero {
+  background: var(--olive-600);
+  color: var(--text-on-olive);
+  border-radius: 14px;
+  padding: 40px 44px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+.pubreport__hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 18px);
+  pointer-events: none;
+}
+.pubreport__hero h1 {
+  font-size: 44px;
+  letter-spacing: -0.02em;
+  margin: 14px 0 8px;
+}
+.pubreport__hero p {
+  opacity: 0.82;
+  max-width: 640px;
+}
+.pubreport__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+.pubreport__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+.pubreport__brand-mark {
+  width: 28px;
+  height: 28px;
+  background: var(--olive-600);
+  color: #fff;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+.big-stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+.big-stat__label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.big-stat__value {
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-top: 8px;
+}
+.big-stat__sub {
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-size: 13px;
+}
+.pubreport h2 {
+  font-size: 24px;
+  letter-spacing: -0.01em;
+  margin: 32px 0 12px;
+}
+.bar-chart {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+.bar-chart__row {
+  display: grid;
+  grid-template-columns: 200px 1fr 110px;
+  align-items: center;
+  gap: 16px;
+  padding: 7px 0;
+}
+.bar-chart__name {
+  font-size: 14px;
+}
+.bar-chart__track {
+  height: 10px;
+  background: var(--surface-3);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.bar-chart__fill {
+  height: 100%;
+  background: var(--olive-500);
+}
+.bar-chart__value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  font-weight: 500;
+}
+.donor-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.donor-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.donor-card__name {
+  font-weight: 500;
+}
+.donor-card__amount {
+  color: var(--olive-700);
+  font-weight: 600;
+  margin-top: 6px;
+}
+.closed-needs {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.closed-needs table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.closed-needs th,
+.closed-needs td {
+  padding: 12px 18px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-soft);
+}
+.closed-needs th {
+  background: var(--surface-2);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.footer-note {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-top: 32px;
+}

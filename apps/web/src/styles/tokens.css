@@ -1,0 +1,73 @@
+/* === Дизайн-система: світло-олива (токени) === */
+:root {
+  /* Olive palette (variant #3 — глибока лісова олива) */
+  --olive-900: #1f2614;
+  --olive-800: #28301c;
+  --olive-700: #3a4628;
+  --olive-600: #4a5d3a;
+  --olive-500: #5d7045;
+  --olive-400: #7a8c5c;
+  --olive-300: #a4b285;
+  --olive-200: #c9d3b0;
+  --olive-100: #e3e8d0;
+  --olive-50: #f0eee5;
+  --olive-25: #f6f4ec;
+
+  /* Surfaces */
+  --bg: #f6f4ec;
+  --bg-soft: #efeddf;
+  --surface: #ffffff;
+  --surface-2: #faf9f2;
+  --surface-3: #f2f0e3;
+  --border: #e1ddc9;
+  --border-strong: #cfcbb3;
+  --border-soft: #ecead9;
+
+  /* Text */
+  --text: #1c2014;
+  --text-muted: #5a5f48;
+  --text-faint: #8a8f72;
+  --text-on-olive: #f6f4ec;
+
+  /* Accents */
+  --primary: var(--olive-600);
+  --primary-hover: var(--olive-700);
+  --primary-soft: #e4e7d0;
+
+  /* Status */
+  --status-new-bg: #e6edf7;
+  --status-new-fg: #2c4a73;
+  --status-progress-bg: #fff2d6;
+  --status-progress-fg: #7a5500;
+  --status-success-bg: #dde9d0;
+  --status-success-fg: #3d5621;
+  --status-warning-bg: #fbe9cf;
+  --status-warning-fg: #8a4a13;
+  --status-danger-bg: #f5d8d3;
+  --status-danger-fg: #7a2a1c;
+  --status-neutral-bg: #e6e3d2;
+  --status-neutral-fg: #4a4d36;
+  --status-violet-bg: #e6dff1;
+  --status-violet-fg: #4c3373;
+
+  /* Sizes */
+  --row-h: 46px;
+  --sidebar-w: 248px;
+  --topbar-h: 56px;
+  --radius: 6px;
+  --radius-lg: 10px;
+
+  /* Type scale */
+  --fs-xs: 11px;
+  --fs-sm: 12.5px;
+  --fs-md: 13.5px;
+  --fs-lg: 15px;
+  --fs-xl: 18px;
+  --fs-2xl: 22px;
+  --fs-3xl: 28px;
+  --fs-4xl: 36px;
+
+  --shadow-sm: 0 1px 2px rgba(28, 32, 20, 0.06), 0 1px 1px rgba(28, 32, 20, 0.04);
+  --shadow-md: 0 4px 12px rgba(28, 32, 20, 0.08), 0 2px 4px rgba(28, 32, 20, 0.05);
+  --shadow-lg: 0 20px 40px rgba(28, 32, 20, 0.16), 0 8px 16px rgba(28, 32, 20, 0.08);
+}
