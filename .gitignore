@@ -26,7 +26,7 @@ coverage
 out/
 build
 dist
-
+/apps/server/generated/prisma
 
 # Debug
 npm-debug.log*
