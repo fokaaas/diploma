@@ -7,9 +7,16 @@ interface TopBarProps {
   roleLabel: string
   foundationName: string
   onProfileClick: () => void
+  onSearchOpen: () => void
 }
 
-export function TopBar({ user, roleLabel, foundationName, onProfileClick }: TopBarProps) {
+export function TopBar({
+  user,
+  roleLabel,
+  foundationName,
+  onProfileClick,
+  onSearchOpen,
+}: TopBarProps) {
   const { showToast } = useToast()
   return (
     <header className="topbar">
@@ -17,9 +24,23 @@ export function TopBar({ user, roleLabel, foundationName, onProfileClick }: TopB
         <Icon name="shield" size={14} color="var(--olive-500)" />
         <span>{foundationName}</span>
       </div>
-      <div className="topbar__search">
+      <div
+        className="topbar__search"
+        role="button"
+        tabIndex={0}
+        onClick={onSearchOpen}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onSearchOpen()
+          }
+        }}
+        style={{ cursor: 'text' }}
+      >
         <Icon name="search" size={15} />
-        <input placeholder="Пошук по заявках, контрагентах, документах..." />
+        <span className="muted" style={{ flex: 1 }}>
+          Пошук по заявках, контрагентах, документах...
+        </span>
         <span className="mono text-xs faint">⌘K</span>
       </div>
       <div className="topbar__right">

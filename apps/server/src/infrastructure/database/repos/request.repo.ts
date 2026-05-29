@@ -108,6 +108,22 @@ export class RequestRepository {
     });
   }
 
+  search(foundationId: string, q: string, take: number) {
+    return this.prisma.request.findMany({
+      where: {
+        foundationId,
+        OR: [
+          { number: { contains: q, mode: 'insensitive' } },
+          { unit: { name: { contains: q, mode: 'insensitive' } } },
+          { unitContactName: { contains: q, mode: 'insensitive' } },
+        ],
+      },
+      orderBy: { createdAt: 'desc' },
+      take,
+      select: { id: true, number: true, unit: { select: { name: true } } },
+    });
+  }
+
   create(input: CreateRequestInput) {
     const { lines, ...rest } = input;
     return this.prisma.request.create({

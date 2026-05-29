@@ -52,6 +52,7 @@ async function bootstrap() {
     .addTag('Audit', 'Аудит та історія: журнал усіх змін у фонді')
     .addTag('Dashboard', 'Дашборд: зведені показники фонду')
     .addTag('Nav', 'Навігація: лічильники активних розділів')
+    .addTag('Search', 'Глобальний пошук по записах фонду')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);

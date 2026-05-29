@@ -90,6 +90,22 @@ export class ContributionRepository {
     });
   }
 
+  search(foundationId: string, q: string, take: number) {
+    return this.prisma.contribution.findMany({
+      where: {
+        foundationId,
+        OR: [
+          { number: { contains: q, mode: 'insensitive' } },
+          { donor: { name: { contains: q, mode: 'insensitive' } } },
+          { purpose: { contains: q, mode: 'insensitive' } },
+        ],
+      },
+      orderBy: [{ occurredAt: 'desc' }, { createdAt: 'desc' }],
+      take,
+      select: { id: true, number: true, donor: { select: { name: true } } },
+    });
+  }
+
   create(input: CreateContributionInput) {
     return this.prisma.contribution.create({ data: input });
   }

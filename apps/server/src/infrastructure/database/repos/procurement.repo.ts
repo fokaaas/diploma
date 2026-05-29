@@ -105,6 +105,21 @@ export class ProcurementRepository {
     });
   }
 
+  search(foundationId: string, q: string, take: number) {
+    return this.prisma.procurement.findMany({
+      where: {
+        foundationId,
+        OR: [
+          { number: { contains: q, mode: 'insensitive' } },
+          { supplier: { name: { contains: q, mode: 'insensitive' } } },
+        ],
+      },
+      orderBy: [{ orderedAt: 'desc' }, { createdAt: 'desc' }],
+      take,
+      select: { id: true, number: true, supplier: { select: { name: true } } },
+    });
+  }
+
   create(input: CreateProcurementInput) {
     const { lines, funding, ...rest } = input;
     return this.prisma.procurement.create({

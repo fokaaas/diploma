@@ -104,6 +104,22 @@ export class CounterpartyRepository {
     return this.prisma.counterparty.findUnique({ where: { id } });
   }
 
+  search(foundationId: string, q: string, take: number) {
+    return this.prisma.counterparty.findMany({
+      where: {
+        foundationId,
+        OR: [
+          { name: { contains: q, mode: 'insensitive' } },
+          { code: { contains: q, mode: 'insensitive' } },
+          { contactPerson: { contains: q, mode: 'insensitive' } },
+        ],
+      },
+      orderBy: { code: 'asc' },
+      take,
+      select: { id: true, code: true, name: true, type: true },
+    });
+  }
+
   create(input: CreateCounterpartyInput) {
     return this.prisma.counterparty.create({ data: input });
   }

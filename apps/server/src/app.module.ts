@@ -22,6 +22,7 @@ import { ReportsModule } from './modules/reports/reports.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { NavModule } from './modules/nav/nav.module';
+import { SearchModule } from './modules/search/search.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { NavModule } from './modules/nav/nav.module';
     AuditModule,
     DashboardModule,
     NavModule,
+    SearchModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
