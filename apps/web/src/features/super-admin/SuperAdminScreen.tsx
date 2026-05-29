@@ -1,47 +1,47 @@
 import { useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import { getRouteApi, useNavigate, useRouter } from '@tanstack/react-router'
 import { useToast } from '../../context/toast-context'
+import { createFoundation, type CreateFoundationInput } from '../../lib/api/platform'
+import { usePlatformAuth } from '../../lib/auth/platform-session'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { Icon } from '../../components/ui/Icon'
 import type { IconName } from '../../components/ui/Icon'
+import { EmptyState } from '../../components/ui/EmptyState'
 import { CreateFoundationModal } from './CreateFoundationModal'
 
-type AdminStatus = 'active' | 'invited' | 'blocked'
+const routeApi = getRouteApi('/super-admin')
 
-interface ClientFoundation {
-  id: string
-  name: string
-  created: string
-  admin: string
-  adminEmail: string
-  adminStatus: AdminStatus
-  users: number
-  storage: string
-  plan: string
+const NAV_ITEMS: { label: string; icon: IconName }[] = [
+  { label: 'Фонди (клієнти)', icon: 'shield' },
+]
+
+function formatDate(iso: string): string {
+  const date = new Date(iso)
+  return Number.isNaN(date.getTime()) ? iso : date.toLocaleDateString('uk-UA')
 }
-
-const FOUNDATIONS: ClientFoundation[] = [
-  { id: 'fnd-001', name: 'Спільнота Стерненка', created: '14 січ. 2025', admin: 'Анастасія Левченко', adminEmail: 'a.levchenko@sternenko.fund', adminStatus: 'active', users: 7, storage: '1,8 ГБ', plan: 'Pro' },
-  { id: 'fnd-002', name: 'БФ «Повернись живим»', created: '02 лют. 2025', admin: 'Сергій Грицик', adminEmail: 's.h@example.org', adminStatus: 'active', users: 24, storage: '14 ГБ', plan: 'Enterprise' },
-  { id: 'fnd-003', name: 'Hospitallers UA', created: '21 бер. 2025', admin: "Анна Юр'єва", adminEmail: 'a.yurieva@hospitallers.ua', adminStatus: 'active', users: 12, storage: '4,1 ГБ', plan: 'Pro' },
-  { id: 'fnd-004', name: 'БФ «Сестра Жанна»', created: '08 кв. 2026', admin: 'Жанна Чугай', adminEmail: 'zh.ch@sestrazhanna.org', adminStatus: 'invited', users: 1, storage: '12 МБ', plan: 'Trial' },
-  { id: 'fnd-005', name: 'БФ «Хижак»', created: '12 трав. 2026', admin: 'Олег Тимченко', adminEmail: 'o.t@hijak.org', adminStatus: 'invited', users: 1, storage: '0 МБ', plan: 'Trial' },
-  { id: 'fnd-006', name: 'БФ «Український легіон»', created: '17 лип. 2025', admin: 'Михайло Білоус', adminEmail: 'm.bilous@ulegion.org', adminStatus: 'blocked', users: 0, storage: '0 МБ', plan: 'Suspended' },
-]
-
-const NAV_ITEMS: { label: string; icon: IconName; active?: boolean; count?: number }[] = [
-  { label: 'Огляд', icon: 'dashboard' },
-  { label: 'Фонди (клієнти)', icon: 'shield', active: true, count: 6 },
-  { label: 'Білінг та плани', icon: 'contributions' },
-  { label: 'Системні події', icon: 'audit' },
-  { label: 'Бекапи', icon: 'box' },
-  { label: 'Інтеграції', icon: 'sliders' },
-]
 
 export function SuperAdminScreen() {
   const navigate = useNavigate()
+  const router = useRouter()
   const { showToast } = useToast()
+  const { admin, accessToken, logout } = usePlatformAuth()
+  const foundations = routeApi.useLoaderData()
   const [createOpen, setCreateOpen] = useState(false)
+
+  const handleCreate = async (input: CreateFoundationInput) => {
+    if (!accessToken) return
+    await createFoundation(accessToken, input)
+    setCreateOpen(false)
+    showToast('Фонд створено, запрошення надіслано')
+    await router.invalidate()
+  }
+
+  const counts = {
+    total: foundations.length,
+    active: foundations.filter((f) => f.adminStatus === 'ACTIVE').length,
+    invited: foundations.filter((f) => f.adminStatus === 'INVITED').length,
+    blocked: foundations.filter((f) => f.adminStatus === 'BLOCKED').length,
+  }
 
   return (
     <div className="app-shell" style={{ gridTemplateColumns: '240px 1fr' }}>
@@ -63,21 +63,12 @@ export function SuperAdminScreen() {
           <div
             key={item.label}
             className="sidebar__item"
-            style={{
-              color: item.active ? '#fff' : '#dcdfd0',
-              background: item.active ? '#3a4628' : 'transparent',
-            }}
-            onClick={() => !item.active && showToast(`${item.label} — у розробці`)}
+            style={{ color: '#fff', background: '#3a4628' }}
           >
             <span className="sidebar__item-icon">
               <Icon name={item.icon} size={16} />
             </span>
             <span>{item.label}</span>
-            {item.count && (
-              <span className="sidebar__item-count" style={{ background: '#3a4628', color: '#dcdfd0' }}>
-                {item.count}
-              </span>
-            )}
           </div>
         ))}
         <div className="sidebar__role-switcher" style={{ borderColor: '#2c331e', color: '#a3a98a' }}>
@@ -99,16 +90,23 @@ export function SuperAdminScreen() {
           </div>
           <div style={{ flex: 1 }} />
           <div className="topbar__right">
-            <button className="topbar__icon-btn" onClick={() => showToast('Немає нових сповіщень')}>
-              <Icon name="bell" size={17} />
+            <button
+              className="btn btn--sm"
+              onClick={() => {
+                void logout()
+                void navigate({ to: '/platform-login' })
+              }}
+            >
+              <Icon name="logout" size={15} />
+              Вийти
             </button>
             <div className="user-chip">
               <span className="user-chip__avatar" style={{ background: '#c98a2e', color: '#1f2614' }}>
                 SA
               </span>
               <span>
-                <div className="user-chip__name">Платформа · Devs</div>
-                <div className="user-chip__role">root</div>
+                <div className="user-chip__name">{admin?.name ?? 'Платформа'}</div>
+                <div className="user-chip__role">{admin?.email ?? 'root'}</div>
               </span>
             </div>
           </div>
@@ -118,113 +116,76 @@ export function SuperAdminScreen() {
             title="Фонди-клієнти платформи"
             subtitle="Огляд організацій, що користуються системою, та їхніх адміністраторів"
             actions={
-              <>
-                <button className="btn" onClick={() => showToast('Експорт сформовано')}>
-                  <Icon name="download" size={15} />
-                  Експорт
-                </button>
-                <button className="btn btn--primary" onClick={() => setCreateOpen(true)}>
-                  <Icon name="plus" size={15} />
-                  Створити фонд
-                </button>
-              </>
+              <button className="btn btn--primary" onClick={() => setCreateOpen(true)}>
+                <Icon name="plus" size={15} />
+                Створити фонд
+              </button>
             }
           />
 
           <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
             <div className="stat">
               <div className="stat__label">Усього фондів</div>
-              <div className="stat__value">6</div>
-              <div className="stat__sub">+2 за останній місяць</div>
+              <div className="stat__value">{counts.total}</div>
             </div>
             <div className="stat">
               <div className="stat__label">Активних</div>
-              <div className="stat__value">3</div>
+              <div className="stat__value">{counts.active}</div>
               <div className="stat__sub">з активним адміністратором</div>
             </div>
             <div className="stat">
               <div className="stat__label">Очікують активації</div>
-              <div className="stat__value">2</div>
+              <div className="stat__value">{counts.invited}</div>
               <div className="stat__delta stat__delta--warn">не прийняли запрошення</div>
             </div>
             <div className="stat">
               <div className="stat__label">Заблокованих</div>
-              <div className="stat__value">1</div>
-              <div className="stat__sub">за порушення Terms of Use</div>
+              <div className="stat__value">{counts.blocked}</div>
             </div>
           </div>
 
           <div className="table-wrap">
-            <div className="table-toolbar">
-              <div className="table-search">
-                <Icon name="search" size={14} color="var(--text-faint)" />
-                <input placeholder="Пошук за фондом, адміністратором, email..." />
-              </div>
-              <button className="filter-chip">
-                <Icon name="filter" size={13} />
-                План
-                <span className="filter-chip__caret">▾</span>
-              </button>
-              <button className="filter-chip">
-                <Icon name="filter" size={13} />
-                Статус
-                <span className="filter-chip__caret">▾</span>
-              </button>
-            </div>
             <table className="data">
               <thead>
                 <tr>
                   <th>Назва фонду</th>
                   <th>Адміністратор</th>
                   <th>Статус адміна</th>
-                  <th>План</th>
                   <th className="text-right">Користувачів</th>
-                  <th className="text-right">Сховище</th>
                   <th>Створено</th>
-                  <th style={{ width: 40 }} />
                 </tr>
               </thead>
               <tbody>
-                {FOUNDATIONS.map((f) => (
+                {foundations.map((f) => (
                   <tr key={f.id} style={{ cursor: 'default' }}>
                     <td>
                       <div style={{ fontWeight: 500 }}>{f.name}</div>
                       <div className="text-xs muted mono">{f.id}</div>
                     </td>
                     <td>
-                      <div>{f.admin}</div>
-                      <div className="text-xs muted mono">{f.adminEmail}</div>
+                      <div>{f.adminName ?? '—'}</div>
+                      <div className="text-xs muted mono">{f.adminEmail ?? ''}</div>
                     </td>
                     <td>
-                      {f.adminStatus === 'active' && <span className="badge badge--success">активний</span>}
-                      {f.adminStatus === 'invited' && <span className="badge badge--new">запрошений</span>}
-                      {f.adminStatus === 'blocked' && <span className="badge badge--danger">заблокований</span>}
+                      {f.adminStatus === 'ACTIVE' && <span className="badge badge--success">активний</span>}
+                      {f.adminStatus === 'INVITED' && <span className="badge badge--new">запрошений</span>}
+                      {f.adminStatus === 'BLOCKED' && <span className="badge badge--danger">заблокований</span>}
                     </td>
-                    <td>
-                      <span className="badge badge--plain">{f.plan}</span>
-                    </td>
-                    <td className="col-num">{f.users}</td>
-                    <td className="col-num">{f.storage}</td>
-                    <td className="col-muted">{f.created}</td>
-                    <td>
-                      <Icon name="chevron-right" size={14} color="var(--text-faint)" />
-                    </td>
+                    <td className="col-num">{f.userCount}</td>
+                    <td className="col-muted">{formatDate(f.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            {foundations.length === 0 && (
+              <EmptyState title="Поки немає фондів" hint="Створіть перший фонд-клієнт платформи" />
+            )}
           </div>
         </div>
       </div>
 
       {createOpen && (
-        <CreateFoundationModal
-          onClose={() => setCreateOpen(false)}
-          onCreate={() => {
-            setCreateOpen(false)
-            showToast('Фонд створено, запрошення надіслано')
-          }}
-        />
+        <CreateFoundationModal onClose={() => setCreateOpen(false)} onSubmit={handleCreate} />
       )}
     </div>
   )

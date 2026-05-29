@@ -1,17 +1,31 @@
 import { useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { useAuth } from '../../lib/auth/session'
+import { login as apiLogin } from '../../lib/api/auth'
+import { sessionStore } from '../../lib/auth/session'
+import { ApiError } from '../../lib/api/client'
 import { Icon } from '../../components/ui/Icon'
 import { AuthSide } from './AuthSide'
 
 export function LoginScreen() {
-  const [showPassword, setShowPassword] = useState(false)
-  const { login } = useAuth()
   const navigate = useNavigate()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleLogin = () => {
-    login()
-    void navigate({ to: '/' })
+  const handleSubmit = async () => {
+    setError(null)
+    setSubmitting(true)
+    try {
+      const session = await apiLogin(email, password)
+      sessionStore.set(session)
+      void navigate({ to: '/' })
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Не вдалося увійти')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -22,18 +36,26 @@ export function LoginScreen() {
           className="auth-card"
           onSubmit={(event) => {
             event.preventDefault()
-            handleLogin()
+            void handleSubmit()
           }}
         >
           <h1>Вхід до системи</h1>
           <p className="lead">Введіть робочі дані фонду</p>
+
+          {error && (
+            <div className="note note--danger mb-3">
+              <Icon name="alert" size={16} />
+              <div>{error}</div>
+            </div>
+          )}
 
           <div className="field">
             <label htmlFor="login-email">Email</label>
             <input
               id="login-email"
               className="input"
-              defaultValue="a.levchenko@sternenko.fund"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="ім'я@організація"
             />
           </div>
@@ -49,7 +71,9 @@ export function LoginScreen() {
                 id="login-password"
                 className="input"
                 type={showPassword ? 'text' : 'password'}
-                defaultValue="0123456789"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Ваш пароль"
               />
               <button
                 type="button"
@@ -72,8 +96,13 @@ export function LoginScreen() {
           <label className="checkbox mb-3">
             <input type="checkbox" defaultChecked /> Запам'ятати мене на цьому пристрої
           </label>
-          <button type="submit" className="btn btn--primary w-full btn--lg" style={{ justifyContent: 'center' }}>
-            Увійти
+          <button
+            type="submit"
+            className="btn btn--primary w-full btn--lg"
+            style={{ justifyContent: 'center' }}
+            disabled={submitting}
+          >
+            {submitting ? 'Вхід…' : 'Увійти'}
           </button>
           <div className="divider" />
           <div className="text-sm muted text-center">

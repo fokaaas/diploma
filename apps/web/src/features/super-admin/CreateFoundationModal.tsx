@@ -1,12 +1,34 @@
+import { useState } from 'react'
+import type { CreateFoundationInput } from '../../lib/api/platform'
+import { ApiError } from '../../lib/api/client'
 import { Modal } from '../../components/ui/Modal'
 import { Icon } from '../../components/ui/Icon'
 
 interface CreateFoundationModalProps {
   onClose: () => void
-  onCreate: () => void
+  onSubmit: (input: CreateFoundationInput) => Promise<void>
 }
 
-export function CreateFoundationModal({ onClose, onCreate }: CreateFoundationModalProps) {
+export function CreateFoundationModal({ onClose, onSubmit }: CreateFoundationModalProps) {
+  const [legalName, setLegalName] = useState('')
+  const [shortName, setShortName] = useState('')
+  const [edrpou, setEdrpou] = useState('')
+  const [adminFullName, setAdminFullName] = useState('')
+  const [adminEmail, setAdminEmail] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  const handleSubmit = async () => {
+    setError(null)
+    setSubmitting(true)
+    try {
+      await onSubmit({ legalName, shortName, edrpou, adminFullName, adminEmail })
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Не вдалося створити фонд')
+      setSubmitting(false)
+    }
+  }
+
   return (
     <Modal
       title="Створення нового фонду-клієнта"
@@ -17,9 +39,9 @@ export function CreateFoundationModal({ onClose, onCreate }: CreateFoundationMod
           <button className="btn" onClick={onClose}>
             Скасувати
           </button>
-          <button className="btn btn--primary" onClick={onCreate}>
+          <button className="btn btn--primary" onClick={() => void handleSubmit()} disabled={submitting}>
             <Icon name="send" size={15} />
-            Створити та надіслати запрошення
+            {submitting ? 'Створення…' : 'Створити та надіслати запрошення'}
           </button>
         </>
       }
@@ -32,35 +54,47 @@ export function CreateFoundationModal({ onClose, onCreate }: CreateFoundationMod
           запрошення.
         </div>
       </div>
+      {error && (
+        <div className="note note--danger mb-3">
+          <Icon name="alert" size={16} />
+          <div>{error}</div>
+        </div>
+      )}
       <div className="form-row">
         <div className="field">
           <label>
             Повна назва фонду <span style={{ color: '#c2541e' }}>*</span>
           </label>
-          <input className="input" placeholder="Благодійна організація «...»" />
+          <input
+            className="input"
+            value={legalName}
+            onChange={(e) => setLegalName(e.target.value)}
+            placeholder="Благодійна організація «...»"
+          />
         </div>
         <div className="field">
-          <label>Скорочена назва</label>
-          <input className="input" placeholder="Для шапки інтерфейсу" />
+          <label>
+            Скорочена назва <span style={{ color: '#c2541e' }}>*</span>
+          </label>
+          <input
+            className="input"
+            value={shortName}
+            onChange={(e) => setShortName(e.target.value)}
+            placeholder="Для шапки інтерфейсу"
+          />
         </div>
       </div>
-      <div className="form-row-3">
+      <div className="form-row">
         <div className="field">
-          <label>Код ЄДРПОУ</label>
-          <input className="input" />
+          <label>
+            Код ЄДРПОУ <span style={{ color: '#c2541e' }}>*</span>
+          </label>
+          <input className="input" value={edrpou} onChange={(e) => setEdrpou(e.target.value)} />
         </div>
         <div className="field">
           <label>Країна</label>
           <select className="select">
             <option>Україна</option>
-          </select>
-        </div>
-        <div className="field">
-          <label>План</label>
-          <select className="select">
-            <option>Trial (14 днів)</option>
-            <option>Pro</option>
-            <option>Enterprise</option>
           </select>
         </div>
       </div>
@@ -71,13 +105,22 @@ export function CreateFoundationModal({ onClose, onCreate }: CreateFoundationMod
           <label>
             ПІБ <span style={{ color: '#c2541e' }}>*</span>
           </label>
-          <input className="input" />
+          <input
+            className="input"
+            value={adminFullName}
+            onChange={(e) => setAdminFullName(e.target.value)}
+          />
         </div>
         <div className="field">
           <label>
             Email <span style={{ color: '#c2541e' }}>*</span>
           </label>
-          <input className="input" placeholder="на цю адресу буде надіслано запрошення" />
+          <input
+            className="input"
+            value={adminEmail}
+            onChange={(e) => setAdminEmail(e.target.value)}
+            placeholder="на цю адресу буде надіслано запрошення"
+          />
         </div>
       </div>
     </Modal>

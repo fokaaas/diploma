@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { getRouteApi } from '@tanstack/react-router'
 import { useToast } from '../../context/toast-context'
 import { USERS, ROLE_LABELS } from '../../data/users'
 import { ITEMS } from '../../data/items'
@@ -11,8 +12,11 @@ type Tab = 'users' | 'foundation' | 'dictionaries'
 
 const CATEGORIES = ['БПЛА', 'РЕБ', 'Медицина', 'Спорядження', 'Оптика', 'Звʼязок', 'Енергозабезп.', 'Транспорт']
 
+const routeApi = getRouteApi('/_app/admin')
+
 export function AdminScreen() {
   const { showToast } = useToast()
+  const foundation = routeApi.useLoaderData()
   const [tab, setTab] = useState<Tab>('users')
   const [inviteOpen, setInviteOpen] = useState(false)
 
@@ -98,29 +102,29 @@ export function AdminScreen() {
             <div className="card__body">
               <div className="field">
                 <label>Повна назва</label>
-                <input className="input" defaultValue="Благодійний фонд «Спільнота Стерненка»" />
+                <input className="input" defaultValue={foundation?.legalName ?? ''} />
               </div>
               <div className="field">
                 <label>Скорочена назва</label>
-                <input className="input" defaultValue="Спільнота Стерненка" />
+                <input className="input" defaultValue={foundation?.shortName ?? ''} />
               </div>
               <div className="form-row">
                 <div className="field">
                   <label>Код ЄДРПОУ</label>
-                  <input className="input" defaultValue="44XXXXXX" />
+                  <input className="input" defaultValue={foundation?.edrpou ?? ''} />
                 </div>
                 <div className="field">
                   <label>ІПН</label>
-                  <input className="input" defaultValue="44XXXXXXXX" />
+                  <input className="input" defaultValue={foundation?.taxId ?? ''} />
                 </div>
               </div>
               <div className="field">
                 <label>Юридична адреса</label>
-                <input className="input" defaultValue="м. Одеса, вул. Прохорівська, 18" />
+                <input className="input" defaultValue={foundation?.address ?? ''} />
               </div>
               <div className="field">
                 <label>Сайт</label>
-                <input className="input" defaultValue="https://sternenko.fund" />
+                <input className="input" defaultValue={foundation?.website ?? ''} />
               </div>
             </div>
             <div className="card__footer text-right">

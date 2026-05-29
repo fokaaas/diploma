@@ -1,3 +1,7 @@
+import { Icon } from '../../components/ui/Icon'
+
+const PLATFORM_NAME = 'Система управління операційною діяльністю волонтерських фондів'
+
 interface AuthSideProps {
   subtitle?: string
 }
@@ -15,13 +19,13 @@ export function AuthSide({ subtitle }: AuthSideProps) {
               borderRadius: 8,
               display: 'grid',
               placeItems: 'center',
-              fontWeight: 700,
+              flexShrink: 0,
             }}
           >
-            СС
+            <Icon name="shield" size={20} />
           </span>
-          <span style={{ fontWeight: 600, fontSize: 17, letterSpacing: '-0.01em' }}>
-            Спільнота Стерненка
+          <span style={{ fontWeight: 600, fontSize: 15, letterSpacing: '-0.01em', lineHeight: 1.25 }}>
+            {PLATFORM_NAME}
           </span>
         </div>
       </div>
@@ -35,7 +39,7 @@ export function AuthSide({ subtitle }: AuthSideProps) {
             marginBottom: 14,
           }}
         >
-          Операційна платформа фонду
+          Операційна платформа волонтерських фондів
         </div>
         <h2
           style={{
@@ -55,9 +59,7 @@ export function AuthSide({ subtitle }: AuthSideProps) {
             'Замість десятка чатів і таблиць — один реєстр з повним аудитом та розмежуванням ролей.'}
         </p>
       </div>
-      <div style={{ position: 'relative', zIndex: 1, opacity: 0.6, fontSize: 12 }}>
-        v1.0 · © 2026 · sternenko.fund
-      </div>
+      <div style={{ position: 'relative', zIndex: 1, opacity: 0.6, fontSize: 12 }}>v1.0 · © 2026</div>
     </div>
   )
 }

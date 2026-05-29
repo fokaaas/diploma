@@ -2,17 +2,17 @@ import { createFileRoute } from '@tanstack/react-router'
 import { AcceptInvitationScreen } from '../features/auth/AcceptInvitationScreen'
 
 interface InviteSearch {
-  status: 'new' | 'expired'
+  token: string
 }
 
 export const Route = createFileRoute('/invite')({
   validateSearch: (search: Record<string, unknown>): InviteSearch => ({
-    status: search.status === 'expired' ? 'expired' : 'new',
+    token: typeof search.token === 'string' ? search.token : '',
   }),
   component: InviteRoute,
 })
 
 function InviteRoute() {
-  const { status } = Route.useSearch()
-  return <AcceptInvitationScreen status={status} />
+  const { token } = Route.useSearch()
+  return <AcceptInvitationScreen token={token} />
 }

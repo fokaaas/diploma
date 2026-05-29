@@ -29,8 +29,8 @@ export function PublicReportPage() {
     <div className="pubreport">
       <div className="pubreport__nav">
         <div className="pubreport__brand">
-          <span className="pubreport__brand-mark">СС</span>
-          <span>Спільнота Стерненка</span>
+          <span className="pubreport__brand-mark">Ф</span>
+          <span>Назва фонду</span>
         </div>
         <Link to="/" className="btn">
           До робочого простору →
@@ -131,8 +131,7 @@ export function PublicReportPage() {
       </div>
 
       <div style={{ textAlign: 'center', marginTop: 40, color: 'var(--text-faint)', fontSize: 12 }}>
-        БО «БФ Спільнота Стерненка» · ЄДРПОУ 44XXXXXX · sternenko.fund · Звіт згенеровано 26 травня
-        2026
+        Благодійний фонд · ЄДРПОУ XXXXXXXX · Звіт згенеровано 26 травня 2026
       </div>
     </div>
   )

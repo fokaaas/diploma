@@ -1,7 +1,6 @@
 import { useNavigate } from '@tanstack/react-router'
 import { useAuth } from '../../lib/auth/session'
 import { useToast } from '../../context/toast-context'
-import { FOUNDATION } from '../../data/foundation'
 import { REQUESTS } from '../../data/requests'
 import { CONTRIBUTIONS } from '../../data/contributions'
 import { PROCUREMENTS } from '../../data/procurements'
@@ -64,7 +63,7 @@ function QuickAction({
 }
 
 export function DashboardScreen() {
-  const { role } = useAuth()
+  const { role, foundationName } = useAuth()
   const navigate = useNavigate()
   const { showToast } = useToast()
 
@@ -83,7 +82,7 @@ export function DashboardScreen() {
     <div className="page">
       <PageDashboardHeader
         title={role === 'accountant' ? 'Фінансовий дашборд' : role === 'auditor' ? 'Огляд активності' : 'Дашборд'}
-        subtitle={`Сьогодні, 26 травня 2026 · ${FOUNDATION.name}`}
+        subtitle={`Сьогодні, 26 травня 2026 · ${foundationName ?? ''}`}
         onExport={() => showToast('Експорт сформовано')}
       />
 

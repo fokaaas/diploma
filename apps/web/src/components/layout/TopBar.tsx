@@ -1,21 +1,21 @@
 import type { User } from '../../types/domain'
-import { FOUNDATION } from '../../data/foundation'
 import { useToast } from '../../context/toast-context'
 import { Icon } from '../ui/Icon'
 
 interface TopBarProps {
   user: User
   roleLabel: string
+  foundationName: string
   onProfileClick: () => void
 }
 
-export function TopBar({ user, roleLabel, onProfileClick }: TopBarProps) {
+export function TopBar({ user, roleLabel, foundationName, onProfileClick }: TopBarProps) {
   const { showToast } = useToast()
   return (
     <header className="topbar">
       <div className="topbar__brand muted" style={{ fontSize: 'var(--fs-sm)' }}>
         <Icon name="shield" size={14} color="var(--olive-500)" />
-        <span>{FOUNDATION.name}</span>
+        <span>{foundationName}</span>
       </div>
       <div className="topbar__search">
         <Icon name="search" size={15} />

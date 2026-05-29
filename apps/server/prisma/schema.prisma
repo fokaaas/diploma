@@ -1,8 +1,612 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  COORDINATOR
+  ACCOUNTANT
+  AUDITOR
+}
+
+enum UserStatus {
+  ACTIVE
+  INVITED
+  BLOCKED
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+enum CounterpartyType {
+  UNIT
+  DONOR
+  SUPPLIER
+}
+
+enum LegalForm {
+  LEGAL_ENTITY
+  INDIVIDUAL
+  SOLE_PROPRIETOR
+  NON_LEGAL
+}
+
+enum CommunicationChannel {
+  SIGNAL
+  TELEGRAM
+  EMAIL
+  PHONE
+}
+
+enum Priority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum RequestStatus {
+  NEW
+  CONFIRMED
+  IN_PROGRESS
+  PARTIALLY_FULFILLED
+  FULFILLED
+  CLOSED
+  REJECTED
+}
+
+enum ContributionForm {
+  MONETARY
+  IN_KIND
+}
+
+enum ProcurementStatus {
+  DRAFT
+  ORDERED
+  PAID
+  RECEIVED
+  CLOSED
+}
+
+enum MovementType {
+  IN
+  OUT
+}
+
+enum ReportKind {
+  INTERNAL
+  PUBLIC
+}
+
+enum ReportFormat {
+  XLSX
+  PDF
+  CSV
+  HTML
+}
+
+enum FileKind {
+  PHOTO
+  DOCUMENT
+  VOICE
+  INVOICE
+  PAYMENT_ORDER
+  WAYBILL
+  ACCEPTANCE_ACT
+  DONATION_AGREEMENT
+  REPORT
+  OTHER
+}
+
+model PlatformAdmin {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  refreshTokens RefreshToken[]
+}
+
+model Foundation {
+  id        String   @id @default(cuid())
+  name      String
+  shortName String
+  legalName String
+  edrpou    String
+  taxId     String?
+  address   String?
+  website   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users          User[]
+  invitations    Invitation[]
+  counterparties Counterparty[]
+  categories     Category[]
+  items          Item[]
+  warehouses     Warehouse[]
+  requests       Request[]
+  contributions  Contribution[]
+  procurements   Procurement[]
+  goodsReceipts  GoodsReceipt[]
+  issuances      Issuance[]
+  movements      StockMovement[]
+  files          File[]
+  reports        Report[]
+  auditLogs      AuditLog[]
+}
+
+model User {
+  id           String     @id @default(cuid())
+  foundationId String
+  fullName     String
+  email        String     @unique
+  passwordHash String?
+  role         Role
+  status       UserStatus @default(INVITED)
+  lastSeenAt   DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  foundation Foundation @relation(fields: [foundationId], references: [id], onDelete: Cascade)
+
+  invitationsSent     Invitation[]         @relation("InvitationInvitedBy")
+  requestsRegistered  Request[]            @relation("RequestRegisteredBy")
+  requestsAssigned    Request[]            @relation("RequestAssignee")
+  contributions       Contribution[]       @relation("ContributionRegisteredBy")
+  procurements        Procurement[]        @relation("ProcurementCreatedBy")
+  goodsReceipts       GoodsReceipt[]       @relation("ReceiptReceivedBy")
+  issuances           Issuance[]           @relation("IssuanceIssuedBy")
+  movements           StockMovement[]      @relation("MovementPerformedBy")
+  filesUploaded       File[]               @relation("FileUploadedBy")
+  reportsGenerated    Report[]             @relation("ReportGeneratedBy")
+  auditLogs           AuditLog[]           @relation("AuditActor")
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+
+  @@index([foundationId])
+}
+
+model Invitation {
+  id           String           @id @default(cuid())
+  foundationId String
+  email        String
+  role         Role
+  token        String           @unique
+  status       InvitationStatus @default(PENDING)
+  message      String?
+  invitedById  String?
+  expiresAt    DateTime
+  acceptedAt   DateTime?
+  createdAt    DateTime         @default(now())
+
+  foundation Foundation @relation(fields: [foundationId], references: [id], onDelete: Cascade)
+  invitedBy  User?      @relation("InvitationInvitedBy", fields: [invitedById], references: [id], onDelete: SetNull)
+
+  @@index([foundationId])
+}
+
+model Counterparty {
+  id             String                @id @default(cuid())
+  foundationId   String
+  code           String
+  type           CounterpartyType
+  name           String
+  legalForm      LegalForm
+  contactPerson  String?
+  phone          String?
+  email          String?
+  channel        CommunicationChannel?
+  note           String?
+  firstContactAt DateTime?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  foundation Foundation @relation(fields: [foundationId], references: [id], onDelete: Cascade)
+
+  requestsAsUnit         Request[]
+  contributionsAsDonor   Contribution[]
+  procurementsAsSupplier Procurement[]
+
+  @@unique([foundationId, code])
+  @@index([foundationId, type])
+}
+
+model Category {
+  id           String @id @default(cuid())
+  foundationId String
+  name         String
+
+  foundation Foundation @relation(fields: [foundationId], references: [id], onDelete: Cascade)
+  items      Item[]
+
+  @@unique([foundationId, name])
+}
+
+model Item {
+  id           String   @id @default(cuid())
+  foundationId String
+  categoryId   String
+  sku          String
+  name         String
+  unit         String
+  minStock     Int      @default(0)
+  lastPrice    Decimal? @db.Decimal(14, 2)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  foundation Foundation @relation(fields: [foundationId], references: [id], onDelete: Cascade)
+  category   Category   @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  stockLevels       StockLevel[]
+  requestLines      RequestLine[]
+  procurementLines  ProcurementLine[]
+  goodsReceiptLines GoodsReceiptLine[]
+  issuanceLines     IssuanceLine[]
+  movements         StockMovement[]
+
+  @@unique([foundationId, sku])
+  @@index([foundationId, categoryId])
+}
+
+model Warehouse {
+  id           String @id @default(cuid())
+  foundationId String
+  name         String
+
+  foundation Foundation @relation(fields: [foundationId], references: [id], onDelete: Cascade)
+
+  stockLevels   StockLevel[]
+  issuanceLines IssuanceLine[]
+  movements     StockMovement[]
+  goodsReceipts GoodsReceipt[]
+
+  @@unique([foundationId, name])
+}
+
+model StockLevel {
+  id          String @id @default(cuid())
+  itemId      String
+  warehouseId String
+  quantity    Int    @default(0)
+
+  item      Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, warehouseId])
+}
+
+model Request {
+  id              String                @id @default(cuid())
+  foundationId    String
+  number          String
+  unitId          String
+  unitContactName String
+  priority        Priority              @default(MEDIUM)
+  status          RequestStatus         @default(NEW)
+  deadline        DateTime?             @db.Date
+  channel         CommunicationChannel?
+  registeredById  String
+  assigneeId      String?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  foundation   Foundation   @relation(fields: [foundationId], references: [id], onDelete: Cascade)
+  unit         Counterparty @relation(fields: [unitId], references: [id], onDelete: Restrict)
+  registeredBy User         @relation("RequestRegisteredBy", fields: [registeredById], references: [id], onDelete: Restrict)
+  assignee     User?        @relation("RequestAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  lines        RequestLine[]
+  procurements Procurement[]
+  issuances    Issuance[]
+  files        File[]
+
+  @@unique([foundationId, number])
+  @@index([foundationId, status])
+  @@index([unitId])
+}
+
+model RequestLine {
+  id               String  @id @default(cuid())
+  requestId        String
+  itemId           String?
+  name             String
+  sku              String?
+  quantity         Int
+  unit             String
+  techSpec         String?
+  receivedQuantity Int     @default(0)
+
+  request Request @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  item    Item?   @relation(fields: [itemId], references: [id], onDelete: SetNull)
+
+  @@index([requestId])
+}
+
+model Contribution {
+  id                String           @id @default(cuid())
+  foundationId      String
+  number            String
+  donorId           String
+  form              ContributionForm
+  amount            Decimal          @db.Decimal(14, 2)
+  currency          String           @default("UAH")
+  purpose           String?
+  baseDocumentLabel String?
+  itemName          String?
+  itemQuantity      Int?
+  occurredAt        DateTime         @db.Date
+  registeredById    String
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  foundation   Foundation   @relation(fields: [foundationId], references: [id], onDelete: Cascade)
+  donor        Counterparty @relation(fields: [donorId], references: [id], onDelete: Restrict)
+  registeredBy User         @relation("ContributionRegisteredBy", fields: [registeredById], references: [id], onDelete: Restrict)
+
+  funding ProcurementFunding[]
+  files   File[]
+
+  @@unique([foundationId, number])
+  @@index([donorId])
+}
+
+model Procurement {
+  id           String            @id @default(cuid())
+  foundationId String
+  number       String
+  supplierId   String
+  requestId    String?
+  status       ProcurementStatus @default(DRAFT)
+  totalAmount  Decimal           @db.Decimal(14, 2)
+  orderedAt    DateTime          @db.Date
+  createdById  String
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  foundation Foundation   @relation(fields: [foundationId], references: [id], onDelete: Cascade)
+  supplier   Counterparty @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  request    Request?     @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  createdBy  User         @relation("ProcurementCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  lines         ProcurementLine[]
+  funding       ProcurementFunding[]
+  goodsReceipts GoodsReceipt[]
+  files         File[]
+
+  @@unique([foundationId, number])
+  @@index([foundationId, status])
+  @@index([supplierId])
+  @@index([requestId])
+}
+
+model ProcurementLine {
+  id            String  @id @default(cuid())
+  procurementId String
+  itemId        String?
+  name          String
+  sku           String?
+  quantity      Int
+  unitPrice     Decimal @db.Decimal(14, 2)
+  lineTotal     Decimal @db.Decimal(14, 2)
+
+  procurement Procurement @relation(fields: [procurementId], references: [id], onDelete: Cascade)
+  item        Item?       @relation(fields: [itemId], references: [id], onDelete: SetNull)
+
+  @@index([procurementId])
+}
+
+model ProcurementFunding {
+  id              String  @id @default(cuid())
+  procurementId   String
+  contributionId  String
+  allocatedAmount Decimal @db.Decimal(14, 2)
+
+  procurement  Procurement  @relation(fields: [procurementId], references: [id], onDelete: Cascade)
+  contribution Contribution @relation(fields: [contributionId], references: [id], onDelete: Cascade)
+
+  @@unique([procurementId, contributionId])
+  @@index([contributionId])
+}
+
+model GoodsReceipt {
+  id            String   @id @default(cuid())
+  foundationId  String
+  procurementId String
+  warehouseId   String
+  receivedById  String
+  receivedAt    DateTime @default(now())
+  note          String?
+
+  foundation  Foundation  @relation(fields: [foundationId], references: [id], onDelete: Cascade)
+  procurement Procurement @relation(fields: [procurementId], references: [id], onDelete: Cascade)
+  warehouse   Warehouse   @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  receivedBy  User        @relation("ReceiptReceivedBy", fields: [receivedById], references: [id], onDelete: Restrict)
+
+  lines     GoodsReceiptLine[]
+  movements StockMovement[]
+
+  @@index([foundationId])
+  @@index([procurementId])
+}
+
+model GoodsReceiptLine {
+  id             String  @id @default(cuid())
+  goodsReceiptId String
+  itemId         String
+  quantity       Int
+  accepted       Boolean @default(true)
+
+  goodsReceipt GoodsReceipt @relation(fields: [goodsReceiptId], references: [id], onDelete: Cascade)
+  item         Item         @relation(fields: [itemId], references: [id], onDelete: Restrict)
+
+  @@index([goodsReceiptId])
+}
+
+model Issuance {
+  id             String   @id @default(cuid())
+  foundationId   String
+  requestId      String
+  recipientName  String
+  deliveryMethod String?
+  issuedById     String
+  issuedAt       DateTime @default(now())
+
+  foundation Foundation @relation(fields: [foundationId], references: [id], onDelete: Cascade)
+  request    Request    @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  issuedBy   User       @relation("IssuanceIssuedBy", fields: [issuedById], references: [id], onDelete: Restrict)
+
+  lines     IssuanceLine[]
+  movements StockMovement[]
+
+  @@index([foundationId])
+  @@index([requestId])
+}
+
+model IssuanceLine {
+  id          String @id @default(cuid())
+  issuanceId  String
+  itemId      String
+  warehouseId String
+  quantity    Int
+
+  issuance  Issuance  @relation(fields: [issuanceId], references: [id], onDelete: Cascade)
+  item      Item      @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+
+  @@index([issuanceId])
+}
+
+model StockMovement {
+  id             String       @id @default(cuid())
+  foundationId   String
+  number         String
+  type           MovementType
+  itemId         String
+  warehouseId    String
+  quantity       Int
+  occurredAt     DateTime     @default(now())
+  performedById  String
+  goodsReceiptId String?
+  issuanceId     String?
+
+  foundation   Foundation    @relation(fields: [foundationId], references: [id], onDelete: Cascade)
+  item         Item          @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  warehouse    Warehouse     @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  performedBy  User          @relation("MovementPerformedBy", fields: [performedById], references: [id], onDelete: Restrict)
+  goodsReceipt GoodsReceipt? @relation(fields: [goodsReceiptId], references: [id], onDelete: Cascade)
+  issuance     Issuance?     @relation(fields: [issuanceId], references: [id], onDelete: Cascade)
+
+  @@unique([foundationId, number])
+  @@index([itemId])
+  @@index([foundationId, occurredAt])
+}
+
+model File {
+  id           String   @id @default(cuid())
+  foundationId String
+  originalName String
+  storagePath  String
+  mimeType     String
+  sizeBytes    Int
+  kind         FileKind @default(OTHER)
+  uploadedById String
+  createdAt    DateTime @default(now())
+
+  requestId      String?
+  contributionId String?
+  procurementId  String?
+  reportId       String?
+
+  foundation   Foundation    @relation(fields: [foundationId], references: [id], onDelete: Cascade)
+  uploadedBy   User          @relation("FileUploadedBy", fields: [uploadedById], references: [id], onDelete: Restrict)
+  request      Request?      @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  contribution Contribution? @relation(fields: [contributionId], references: [id], onDelete: Cascade)
+  procurement  Procurement?  @relation(fields: [procurementId], references: [id], onDelete: Cascade)
+  report       Report?       @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([foundationId])
+  @@index([requestId])
+  @@index([contributionId])
+  @@index([procurementId])
+  @@index([reportId])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  foundationId String
+  actorId      String?
+  action       String
+  targetType   String
+  targetId     String
+  summary      String
+  changes      Json?
+  createdAt    DateTime @default(now())
+
+  foundation Foundation @relation(fields: [foundationId], references: [id], onDelete: Cascade)
+  actor      User?      @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([foundationId, createdAt])
+}
+
+model Report {
+  id            String       @id @default(cuid())
+  foundationId  String
+  title         String
+  kind          ReportKind
+  format        ReportFormat
+  periodStart   DateTime     @db.Date
+  periodEnd     DateTime     @db.Date
+  generatedById String
+  isPublished   Boolean      @default(false)
+  publishedAt   DateTime?
+  publicSlug    String?      @unique
+  snapshot      Json?
+  createdAt     DateTime     @default(now())
+
+  foundation  Foundation @relation(fields: [foundationId], references: [id], onDelete: Cascade)
+  generatedBy User       @relation("ReportGeneratedBy", fields: [generatedById], references: [id], onDelete: Restrict)
+
+  files File[]
+
+  @@index([foundationId])
+}
+
+model RefreshToken {
+  id              String    @id @default(cuid())
+  tokenHash       String    @unique
+  userId          String?
+  platformAdminId String?
+  expiresAt       DateTime
+  revokedAt       DateTime?
+  createdAt       DateTime  @default(now())
+
+  user          User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platformAdmin PlatformAdmin? @relation(fields: [platformAdminId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([platformAdminId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SuperAdminRouteImport } from './routes/super-admin'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PublicReportRouteImport } from './routes/public-report'
+import { Route as PlatformLoginRouteImport } from './routes/platform-login'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
@@ -38,9 +40,19 @@ const SuperAdminRoute = SuperAdminRouteImport.update({
   path: '/super-admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PublicReportRoute = PublicReportRouteImport.update({
   id: '/public-report',
   path: '/public-report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlatformLoginRoute = PlatformLoginRouteImport.update({
+  id: '/platform-login',
+  path: '/platform-login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -156,7 +168,9 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/invite': typeof InviteRoute
   '/login': typeof LoginRoute
+  '/platform-login': typeof PlatformLoginRoute
   '/public-report': typeof PublicReportRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/super-admin': typeof SuperAdminRoute
   '/admin': typeof AppAdminRoute
   '/audit': typeof AppAuditRoute
@@ -179,7 +193,9 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/invite': typeof InviteRoute
   '/login': typeof LoginRoute
+  '/platform-login': typeof PlatformLoginRoute
   '/public-report': typeof PublicReportRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/super-admin': typeof SuperAdminRoute
   '/admin': typeof AppAdminRoute
   '/audit': typeof AppAuditRoute
@@ -205,7 +221,9 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/invite': typeof InviteRoute
   '/login': typeof LoginRoute
+  '/platform-login': typeof PlatformLoginRoute
   '/public-report': typeof PublicReportRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/super-admin': typeof SuperAdminRoute
   '/_app/admin': typeof AppAdminRoute
   '/_app/audit': typeof AppAuditRoute
@@ -232,7 +250,9 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/invite'
     | '/login'
+    | '/platform-login'
     | '/public-report'
+    | '/reset-password'
     | '/super-admin'
     | '/admin'
     | '/audit'
@@ -255,7 +275,9 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/invite'
     | '/login'
+    | '/platform-login'
     | '/public-report'
+    | '/reset-password'
     | '/super-admin'
     | '/admin'
     | '/audit'
@@ -280,7 +302,9 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/invite'
     | '/login'
+    | '/platform-login'
     | '/public-report'
+    | '/reset-password'
     | '/super-admin'
     | '/_app/admin'
     | '/_app/audit'
@@ -306,7 +330,9 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   InviteRoute: typeof InviteRoute
   LoginRoute: typeof LoginRoute
+  PlatformLoginRoute: typeof PlatformLoginRoute
   PublicReportRoute: typeof PublicReportRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SuperAdminRoute: typeof SuperAdminRoute
 }
 
@@ -319,11 +345,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuperAdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/public-report': {
       id: '/public-report'
       path: '/public-report'
       fullPath: '/public-report'
       preLoaderRoute: typeof PublicReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/platform-login': {
+      id: '/platform-login'
+      path: '/platform-login'
+      fullPath: '/platform-login'
+      preLoaderRoute: typeof PlatformLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -523,7 +563,9 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   InviteRoute: InviteRoute,
   LoginRoute: LoginRoute,
+  PlatformLoginRoute: PlatformLoginRoute,
   PublicReportRoute: PublicReportRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SuperAdminRoute: SuperAdminRoute,
 }
 export const routeTree = rootRouteImport

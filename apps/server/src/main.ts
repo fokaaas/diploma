@@ -5,12 +5,15 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
   );
+
+  app.enableCors();
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -20,7 +23,22 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3000);
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle(
+      'Система управління операційною діяльністю волонтерських фондів · API',
+    )
+    .setDescription('Операційна платформа волонтерських фондів')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .addTag('Auth', 'Аутентифікація користувачів фонду')
+    .addTag('Platform', 'Аутентифікація суперадміністратора платформи')
+    .addTag('Foundations', 'Створення та перелік фондів-клієнтів')
+    .addTag('Users', 'Запрошення та керування користувачами фонду')
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('docs', app, document);
+
+  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 
 void bootstrap();

@@ -28,7 +28,7 @@ export function PublicReportPreview({ onClose }: { onClose: () => void }) {
       }
     >
       <div style={{ background: 'var(--surface-2)', borderRadius: 8, padding: 24 }}>
-        <div className="muted text-sm">Спільнота Стерненка · публічний звіт</div>
+        <div className="muted text-sm">Публічний звіт фонду</div>
         <h2 style={{ margin: '6px 0 18px', fontSize: 28, letterSpacing: '-.02em' }}>
           Травень 2026 · як ми діяли
         </h2>

@@ -1,12 +1,30 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { forgotPassword } from '../../lib/api/auth'
+import { ApiError } from '../../lib/api/client'
 import { Icon } from '../../components/ui/Icon'
 import { AuthSide } from './AuthSide'
 
 export function ForgotPasswordScreen() {
-  const [sent, setSent] = useState(false)
   const navigate = useNavigate()
+  const [email, setEmail] = useState('')
+  const [sent, setSent] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const goToLogin = () => void navigate({ to: '/login' })
+
+  const handleSubmit = async () => {
+    setError(null)
+    setSubmitting(true)
+    try {
+      await forgotPassword(email)
+      setSent(true)
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Не вдалося надіслати лист')
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <div className="auth-wrap">
@@ -25,19 +43,36 @@ export function ForgotPasswordScreen() {
             <form
               onSubmit={(event) => {
                 event.preventDefault()
-                setSent(true)
+                void handleSubmit()
               }}
             >
               <h1>Відновлення пароля</h1>
               <p className="lead">
                 Вкажіть email, на який буде надіслано посилання для встановлення нового пароля.
               </p>
+              {error && (
+                <div className="note note--danger mb-3">
+                  <Icon name="alert" size={16} />
+                  <div>{error}</div>
+                </div>
+              )}
               <div className="field">
                 <label htmlFor="forgot-email">Email</label>
-                <input id="forgot-email" className="input" placeholder="ім'я@організація" />
+                <input
+                  id="forgot-email"
+                  className="input"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="ім'я@організація"
+                />
               </div>
-              <button type="submit" className="btn btn--primary w-full btn--lg" style={{ justifyContent: 'center' }}>
-                Надіслати посилання
+              <button
+                type="submit"
+                className="btn btn--primary w-full btn--lg"
+                style={{ justifyContent: 'center' }}
+                disabled={submitting}
+              >
+                {submitting ? 'Надсилання…' : 'Надіслати посилання'}
               </button>
             </form>
           ) : (
