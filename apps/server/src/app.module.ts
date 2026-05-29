@@ -20,6 +20,7 @@ import { WarehousesModule } from './modules/warehouses/warehouses.module';
 import { StockModule } from './modules/stock/stock.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { AuditModule } from './modules/audit/audit.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { AuditModule } from './modules/audit/audit.module';
     StockModule,
     ReportsModule,
     AuditModule,
+    DashboardModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })

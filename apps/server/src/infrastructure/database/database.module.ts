@@ -21,6 +21,7 @@ import { GoodsReceiptRepository } from './repos/goods-receipt.repo';
 import { IssuanceRepository } from './repos/issuance.repo';
 import { ReportRepository } from './repos/report.repo';
 import { ReportQueryRepository } from './repos/report-query.repo';
+import { DashboardQueryRepository } from './repos/dashboard-query.repo';
 
 const repositories = [
   PlatformAdminRepository,
@@ -44,6 +45,7 @@ const repositories = [
   IssuanceRepository,
   ReportRepository,
   ReportQueryRepository,
+  DashboardQueryRepository,
 ];
 
 @Global()

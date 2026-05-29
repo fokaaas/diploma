@@ -25,8 +25,19 @@ export class AuditService {
     private readonly users: UserRepository,
   ) {}
 
-  async list(actor: UserPrincipal): Promise<AuditEntryResponse[]> {
-    const entries = await this.audits.findManyByFoundation(actor.foundationId);
+  list(actor: UserPrincipal): Promise<AuditEntryResponse[]> {
+    return this.resolve(actor.foundationId);
+  }
+
+  recent(actor: UserPrincipal, limit: number): Promise<AuditEntryResponse[]> {
+    return this.resolve(actor.foundationId, limit);
+  }
+
+  private async resolve(
+    foundationId: string,
+    take?: number,
+  ): Promise<AuditEntryResponse[]> {
+    const entries = await this.audits.findManyByFoundation(foundationId, take);
     const refs = await this.resolveRefs(entries);
     return entries.map((entry) => this.toResponse(entry, refs));
   }

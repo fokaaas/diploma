@@ -25,6 +25,10 @@ const STATUS_TO_FE: Record<BackendStatus, RequestStatus> = {
   CLOSED: 'closed',
   REJECTED: 'rejected',
 }
+
+export function toRequestStatus(status: BackendStatus): RequestStatus {
+  return STATUS_TO_FE[status]
+}
 const STATUS_TO_BE: Record<RequestStatus, BackendStatus> = {
   new: 'NEW',
   confirmed: 'CONFIRMED',

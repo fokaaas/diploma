@@ -8,6 +8,10 @@ const FORM_TO_FE: Record<BackendForm, ContributionForm> = {
   MONETARY: 'monetary',
   IN_KIND: 'in-kind',
 }
+
+export function toContributionForm(form: BackendForm): ContributionForm {
+  return FORM_TO_FE[form]
+}
 const FORM_TO_BE: Record<ContributionForm, BackendForm> = {
   monetary: 'MONETARY',
   'in-kind': 'IN_KIND',

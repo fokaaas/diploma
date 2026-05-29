@@ -26,11 +26,11 @@ export class AuditLogRepository {
     });
   }
 
-  findManyByFoundation(foundationId: string) {
+  findManyByFoundation(foundationId: string, take = 1000) {
     return this.prisma.auditLog.findMany({
       where: { foundationId },
       orderBy: { createdAt: 'desc' },
-      take: 1000,
+      take,
       include: { actor: { select: { fullName: true } } },
     });
   }

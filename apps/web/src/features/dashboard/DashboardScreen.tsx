@@ -1,13 +1,9 @@
-import { useNavigate } from '@tanstack/react-router'
+import { getRouteApi, useNavigate } from '@tanstack/react-router'
 import { useAuth } from '../../lib/auth/session'
-import { useToast } from '../../context/toast-context'
-import { REQUESTS } from '../../data/requests'
-import { CONTRIBUTIONS } from '../../data/contributions'
-import { PROCUREMENTS } from '../../data/procurements'
-import { ITEMS } from '../../data/items'
-import { AUDIT } from '../../data/audit'
 import { REQUEST_STATUS_BY_KEY } from '../../data/statuses'
-import { getCounterparty } from '../../data/queries'
+import { formatCompactUAH, formatMoney } from '../../lib/format'
+import { downloadCsv } from '../../lib/export/csv'
+import type { DashboardOverview } from '../../lib/api/dashboard'
 import { Icon } from '../../components/ui/Icon'
 import type { IconName } from '../../components/ui/Icon'
 import { Money } from '../../components/ui/Money'
@@ -34,15 +30,83 @@ const WIDGETS_BY_ROLE: Record<string, Widget[]> = {
   auditor: ['requests', 'contrib', 'audit', 'activity'],
 }
 
-function QuickAction({
-  icon,
-  label,
-  onClick,
-}: {
-  icon: IconName
-  label: string
-  onClick: () => void
-}) {
+const EMPTY: DashboardOverview = {
+  openRequests: 0,
+  openRequestsWeekDelta: 0,
+  inProgress: 0,
+  inProgressCritical: 0,
+  procurementsInProgress: 0,
+  procurementsAmount: 0,
+  lowStockCount: 0,
+  contributionsMonth: 0,
+  contributionsDeltaPct: null,
+  auditCount: 0,
+  trend: [],
+  recentRequests: [],
+  recentContributions: [],
+  lowStockItems: [],
+  activity: [],
+}
+
+const routeApi = getRouteApi('/_app/')
+
+function pad(value: number): string {
+  return String(value).padStart(2, '0')
+}
+
+function monthLabel(year: number, month1: number): string {
+  return new Date(Date.UTC(year, month1 - 1, 1)).toLocaleDateString('uk-UA', {
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  })
+}
+
+function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
+function monthName(month: string): string {
+  const [year, m] = month.split('-').map(Number)
+  return new Date(Date.UTC(year, m - 1, 1)).toLocaleDateString('uk-UA', {
+    month: 'long',
+    timeZone: 'UTC',
+  })
+}
+
+function monthOptions(selected: string): { value: string; label: string }[] {
+  const now = new Date()
+  const months = new Map<string, string>()
+  for (let i = 0; i < 12; i += 1) {
+    const date = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1))
+    const value = `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}`
+    months.set(value, capitalize(monthLabel(date.getUTCFullYear(), date.getUTCMonth() + 1)))
+  }
+  if (!months.has(selected)) {
+    const [year, m] = selected.split('-').map(Number)
+    months.set(selected, capitalize(monthLabel(year, m)))
+  }
+  return [...months.entries()]
+    .map(([value, label]) => ({ value, label }))
+    .sort((a, b) => (a.value < b.value ? 1 : -1))
+}
+
+function todayLabel(): string {
+  return new Date().toLocaleDateString('uk-UA', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
+function activityTime(iso: string): string {
+  const date = new Date(iso)
+  const day = date.toLocaleDateString('uk-UA', { day: '2-digit', month: 'short', year: 'numeric' })
+  const time = date.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })
+  return `${day} · ${time}`
+}
+
+function QuickAction({ icon, label, onClick }: { icon: IconName; label: string; onClick: () => void }) {
   return (
     <button
       className="btn"
@@ -62,29 +126,64 @@ function QuickAction({
   )
 }
 
-export function DashboardScreen() {
+export function DashboardScreen({ month }: { month: string }) {
   const { role, foundationName } = useAuth()
   const navigate = useNavigate()
-  const { showToast } = useToast()
-
-  const openRequests = REQUESTS.filter((r) => r.status === 'new' || r.status === 'confirmed').length
-  const inProgress = REQUESTS.filter((r) => r.status === 'progress' || r.status === 'partial').length
-  const procurementsInProgress = PROCUREMENTS.filter(
-    (p) => p.status === 'ordered' || p.status === 'paid',
-  ).length
-  const lowStockItems = ITEMS.filter((i) => i.warn)
-  const lowStock = lowStockItems.length
+  const { overview } = routeApi.useLoaderData()
+  const data = overview ?? EMPTY
 
   const widgets = WIDGETS_BY_ROLE[role ?? 'admin'] ?? WIDGETS_BY_ROLE.admin
   const has = (w: Widget) => widgets.includes(w)
+  const showPicker = has('contrib') || has('audit')
+  const trendMax = data.trend.reduce((max, point) => Math.max(max, point.total), 0)
+
+  const handleExport = () => {
+    downloadCsv('dashboard.csv', ['Показник', 'Значення'], [
+      ['Відкритих заявок', data.openRequests],
+      ['Нових за тиждень', data.openRequestsWeekDelta],
+      ['В роботі', data.inProgress],
+      ['З критичним пріоритетом', data.inProgressCritical],
+      [`Внески за ${monthName(month)}`, formatMoney(data.contributionsMonth)],
+      ['Зміна до попереднього місяця, %', data.contributionsDeltaPct ?? '—'],
+      ['Закупівлі в роботі', data.procurementsInProgress],
+      ['Сума закупівель в роботі', formatMoney(data.procurementsAmount)],
+      ['Низькі залишки', data.lowStockCount],
+      ['Операцій за період', data.auditCount],
+    ])
+  }
 
   return (
     <div className="page">
-      <PageDashboardHeader
-        title={role === 'accountant' ? 'Фінансовий дашборд' : role === 'auditor' ? 'Огляд активності' : 'Дашборд'}
-        subtitle={`Сьогодні, 26 травня 2026 · ${foundationName ?? ''}`}
-        onExport={() => showToast('Експорт сформовано')}
-      />
+      <div className="page__header">
+        <div>
+          <h1 className="page__title">
+            {role === 'accountant' ? 'Фінансовий дашборд' : role === 'auditor' ? 'Огляд активності' : 'Дашборд'}
+          </h1>
+          <div className="page__subtitle">
+            Сьогодні, {todayLabel()}
+            {foundationName ? ` · ${foundationName}` : ''}
+          </div>
+        </div>
+        <div className="page__actions">
+          {showPicker && (
+            <select
+              className="select"
+              value={month}
+              onChange={(e) => void navigate({ to: '/', search: { month: e.target.value } })}
+            >
+              {monthOptions(month).map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          )}
+          <button className="btn" onClick={handleExport}>
+            <Icon name="download" size={15} />
+            Експорт
+          </button>
+        </div>
+      </div>
 
       {role !== 'auditor' && (
         <>
@@ -127,8 +226,8 @@ export function DashboardScreen() {
               <Icon name="requests" size={14} />
               Відкритих заявок
             </div>
-            <div className="stat__value">{openRequests}</div>
-            <div className="stat__delta stat__delta--up">+3 за тиждень</div>
+            <div className="stat__value">{data.openRequests}</div>
+            <div className="stat__delta stat__delta--up">+{data.openRequestsWeekDelta} за тиждень</div>
           </div>
         )}
         {has('progress') && (
@@ -136,20 +235,25 @@ export function DashboardScreen() {
             <div className="stat__label">
               <Icon name="refresh" size={14} />В роботі
             </div>
-            <div className="stat__value">{inProgress}</div>
-            <div className="stat__sub">2 з них — з критичним пріоритетом</div>
+            <div className="stat__value">{data.inProgress}</div>
+            <div className="stat__sub">{data.inProgressCritical} з них — з критичним пріоритетом</div>
           </div>
         )}
         {has('contrib') && (
           <div className="stat">
             <div className="stat__label">
               <Icon name="contributions" size={14} />
-              Внески за травень
+              Внески за {monthName(month)}
             </div>
-            <div className="stat__value">
-              2,30 <span style={{ fontSize: 18, fontWeight: 500, color: 'var(--text-muted)' }}>млн ₴</span>
-            </div>
-            <div className="stat__delta stat__delta--up">+18% до квітня</div>
+            <div className="stat__value">{formatCompactUAH(data.contributionsMonth)}</div>
+            {data.contributionsDeltaPct !== null && (
+              <div
+                className={`stat__delta ${data.contributionsDeltaPct >= 0 ? 'stat__delta--up' : 'stat__delta--warn'}`}
+              >
+                {data.contributionsDeltaPct >= 0 ? '+' : ''}
+                {data.contributionsDeltaPct}% до попереднього місяця
+              </div>
+            )}
           </div>
         )}
         {has('procurements') && (
@@ -158,8 +262,8 @@ export function DashboardScreen() {
               <Icon name="procurements" size={14} />
               Закупівлі в роботі
             </div>
-            <div className="stat__value">{procurementsInProgress}</div>
-            <div className="stat__sub">на суму 1,2 млн ₴</div>
+            <div className="stat__value">{data.procurementsInProgress}</div>
+            <div className="stat__sub">на суму {formatCompactUAH(data.procurementsAmount)}</div>
           </div>
         )}
         {has('stock') && (
@@ -168,7 +272,7 @@ export function DashboardScreen() {
               <Icon name="warehouse" size={14} />
               Низькі залишки
             </div>
-            <div className="stat__value">{lowStock}</div>
+            <div className="stat__value">{data.lowStockCount}</div>
             <div className="stat__delta stat__delta--warn">потребують поповнення</div>
           </div>
         )}
@@ -178,8 +282,8 @@ export function DashboardScreen() {
               <Icon name="arrow-up" size={14} />
               Динаміка надходжень
             </div>
-            <Sparkline values={[120, 180, 145, 210, 198, 245, 230, 312, 268, 290, 348, 410]} height={42} />
-            <div className="stat__sub mt-2">12 міс · мак. 410 тис ₴ / тиждень</div>
+            <Sparkline values={data.trend.length ? data.trend.map((t) => t.total) : [0, 0]} height={42} />
+            <div className="stat__sub mt-2">12 міс · мак. {formatCompactUAH(trendMax)}</div>
           </div>
         )}
         {has('audit') && (
@@ -188,8 +292,8 @@ export function DashboardScreen() {
               <Icon name="audit" size={14} />
               Операцій за період
             </div>
-            <div className="stat__value">412</div>
-            <div className="stat__sub">журнал змін, ↗ повний доступ</div>
+            <div className="stat__value">{data.auditCount}</div>
+            <div className="stat__sub">журнал змін за {monthName(month)}</div>
           </div>
         )}
       </div>
@@ -205,19 +309,26 @@ export function DashboardScreen() {
             </div>
             <table className="data">
               <tbody>
-                {REQUESTS.slice(0, 5).map((r) => (
+                {data.recentRequests.map((r) => (
                   <tr
                     key={r.id}
                     onClick={() => void navigate({ to: '/requests/$requestId', params: { requestId: r.id } })}
                   >
-                    <td className="col-id">{r.id}</td>
-                    <td>{getCounterparty(r.unit)?.name.split(' ').slice(0, 3).join(' ')}</td>
+                    <td className="col-id">{r.number}</td>
+                    <td>{r.unitName.split(' ').slice(0, 3).join(' ')}</td>
                     <td>
                       <StatusBadge status={r.status} statuses={REQUEST_STATUS_BY_KEY} />
                     </td>
-                    <td className="col-muted text-right">{r.date}</td>
+                    <td className="col-muted text-right">
+                      {new Date(r.occurredAt).toLocaleDateString('uk-UA', { dateStyle: 'medium' })}
+                    </td>
                   </tr>
                 ))}
+                {data.recentRequests.length === 0 && (
+                  <tr style={{ cursor: 'default' }}>
+                    <td className="muted">Заявок ще немає</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -232,21 +343,24 @@ export function DashboardScreen() {
             </div>
             <table className="data">
               <tbody>
-                {CONTRIBUTIONS.slice(0, 5).map((c) => (
+                {data.recentContributions.map((c) => (
                   <tr
                     key={c.id}
-                    onClick={() =>
-                      void navigate({ to: '/contributions/$contributionId', params: { contributionId: c.id } })
-                    }
+                    onClick={() => void navigate({ to: '/contributions/$contributionId', params: { contributionId: c.id } })}
                   >
-                    <td className="col-id">{c.id}</td>
-                    <td>{getCounterparty(c.donor)?.name}</td>
+                    <td className="col-id">{c.number}</td>
+                    <td>{c.donorName}</td>
                     <td className="col-muted">{c.form === 'monetary' ? 'грошовий' : 'натуральний'}</td>
                     <td className="col-num">
                       <Money value={c.amount} />
                     </td>
                   </tr>
                 ))}
+                {data.recentContributions.length === 0 && (
+                  <tr style={{ cursor: 'default' }}>
+                    <td className="muted">Надходжень ще немає</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -260,18 +374,27 @@ export function DashboardScreen() {
           </div>
           <div className="card__body" style={{ paddingTop: 8 }}>
             <div className="timeline">
-              {AUDIT.slice(0, 6).map((a, i) => (
-                <div key={i} className="timeline__item">
+              {data.activity.map((a, i) => (
+                <div key={a.id} className="timeline__item">
                   <span className={`timeline__dot ${i === 0 ? 'timeline__dot--success' : 'timeline__dot--neutral'}`} />
                   <div className="timeline__title">
-                    {a.action} — <span className="mono">{a.entity}</span>
+                    {a.action}
+                    {a.targetRef ? (
+                      <>
+                        {' '}
+                        — <span className="mono">{a.targetRef}</span>
+                      </>
+                    ) : null}
                   </div>
                   <div className="timeline__meta">
-                    {a.user} · {a.date}
+                    {a.actorName} · {activityTime(a.occurredAt)}
                   </div>
-                  <div className="timeline__body">{a.detail}</div>
+                  <div className="timeline__body">{a.summary}</div>
                 </div>
               ))}
+              {data.activity.length === 0 && (
+                <EmptyState title="Журнал порожній" hint="Тут зʼявляться останні дії у фонді" />
+              )}
             </div>
           </div>
         </div>
@@ -283,9 +406,9 @@ export function DashboardScreen() {
             </button>
           </div>
           <div className="card__body">
-            {lowStockItems.map((i) => (
+            {data.lowStockItems.map((i) => (
               <div
-                key={i.id}
+                key={`${i.itemId}-${i.warehouseName}`}
                 className="note mb-2"
                 style={{ background: 'var(--status-warning-bg)', borderColor: '#e3c79a', color: 'var(--status-warning-fg)' }}
               >
@@ -293,7 +416,7 @@ export function DashboardScreen() {
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 500 }}>{i.name}</div>
                   <div className="text-xs">
-                    Залишок {i.stock} {i.unit} · мінімум {i.minStock} {i.unit} · {i.location}
+                    Залишок {i.quantity} {i.unit} · мінімум {i.minStock} {i.unit} · {i.warehouseName}
                   </div>
                 </div>
                 <button className="btn btn--sm" onClick={() => void navigate({ to: '/procurements/new' })}>
@@ -301,40 +424,11 @@ export function DashboardScreen() {
                 </button>
               </div>
             ))}
-            {lowStock === 0 && (
+            {data.lowStockItems.length === 0 && (
               <EmptyState title="Усі позиції в нормі" hint="Поточні запаси перевищують мінімальні рівні" />
             )}
           </div>
         </div>
-      </div>
-    </div>
-  )
-}
-
-function PageDashboardHeader({
-  title,
-  subtitle,
-  onExport,
-}: {
-  title: string
-  subtitle: string
-  onExport: () => void
-}) {
-  return (
-    <div className="page__header">
-      <div>
-        <h1 className="page__title">{title}</h1>
-        <div className="page__subtitle">{subtitle}</div>
-      </div>
-      <div className="page__actions">
-        <button className="btn">
-          <Icon name="calendar" size={15} />
-          Травень 2026
-        </button>
-        <button className="btn" onClick={onExport}>
-          <Icon name="download" size={15} />
-          Експорт
-        </button>
       </div>
     </div>
   )

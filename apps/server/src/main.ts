@@ -50,6 +50,7 @@ async function bootstrap() {
     .addTag('Stock', 'Склад: залишки, рух ТМЦ, прийом і видача')
     .addTag('Reports', 'Звітність: внутрішні та публічні звіти')
     .addTag('Audit', 'Аудит та історія: журнал усіх змін у фонді')
+    .addTag('Dashboard', 'Дашборд: зведені показники фонду')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);
