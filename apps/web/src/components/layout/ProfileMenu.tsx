@@ -1,5 +1,4 @@
 import type { User } from '../../types/domain'
-import { useToast } from '../../context/toast-context'
 import { Avatar } from '../ui/Avatar'
 import { Icon } from '../ui/Icon'
 
@@ -8,10 +7,18 @@ interface ProfileMenuProps {
   roleLabel: string
   onClose: () => void
   onLogout: () => void
+  onEditProfile: () => void
+  onChangePassword: () => void
 }
 
-export function ProfileMenu({ user, roleLabel, onClose, onLogout }: ProfileMenuProps) {
-  const { showToast } = useToast()
+export function ProfileMenu({
+  user,
+  roleLabel,
+  onClose,
+  onLogout,
+  onEditProfile,
+  onChangePassword,
+}: ProfileMenuProps) {
   return (
     <div className="modal-backdrop" onClick={onClose} style={{ background: 'rgba(28,32,20,0.18)' }}>
       <div className="modal" style={{ maxWidth: 360 }} onClick={(event) => event.stopPropagation()}>
@@ -38,7 +45,7 @@ export function ProfileMenu({ user, roleLabel, onClose, onLogout }: ProfileMenuP
             style={{ justifyContent: 'flex-start' }}
             onClick={() => {
               onClose()
-              showToast('Редагування профілю незабаром')
+              onEditProfile()
             }}
           >
             <Icon name="user" size={16} />
@@ -49,7 +56,7 @@ export function ProfileMenu({ user, roleLabel, onClose, onLogout }: ProfileMenuP
             style={{ justifyContent: 'flex-start' }}
             onClick={() => {
               onClose()
-              showToast('Зміна пароля незабаром')
+              onChangePassword()
             }}
           >
             <Icon name="lock" size={16} />

@@ -30,6 +30,7 @@ import type { AcceptInvitationDto } from './body/accept-invitation.dto';
 import type { ForgotPasswordDto } from './body/forgot-password.dto';
 import type { ResetPasswordDto } from './body/reset-password.dto';
 import type { ChangePasswordDto } from './body/change-password.dto';
+import type { UpdateProfileDto } from './body/update-profile.dto';
 import type { RefreshDto } from './body/refresh.dto';
 
 const RESET_TTL_MS = 2 * 60 * 60 * 1000;
@@ -168,6 +169,14 @@ export class AuthService {
       await this.passwords.hash(dto.newPassword),
     );
     return { message: 'Пароль змінено' };
+  }
+
+  async updateProfile(
+    userId: string,
+    dto: UpdateProfileDto,
+  ): Promise<SessionUserResponse> {
+    await this.users.setFullName(userId, dto.fullName.trim());
+    return this.getSession(userId);
   }
 
   async getSession(userId: string): Promise<SessionUserResponse> {

@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
 } from '@nestjs/common';
 import {
@@ -24,6 +25,7 @@ import { AcceptInvitationDto } from './body/accept-invitation.dto';
 import { ForgotPasswordDto } from './body/forgot-password.dto';
 import { ResetPasswordDto } from './body/reset-password.dto';
 import { ChangePasswordDto } from './body/change-password.dto';
+import { UpdateProfileDto } from './body/update-profile.dto';
 import { AuthSessionResponse } from './responses/auth-session.response';
 import { AuthTokensResponse } from './responses/auth-tokens.response';
 import { SessionUserResponse } from './responses/session-user.response';
@@ -69,6 +71,17 @@ export class AuthController {
     @CurrentUser() principal: AuthenticatedPrincipal,
   ): Promise<SessionUserResponse> {
     return this.auth.getSession(principal.sub);
+  }
+
+  @ApiBearerAuth()
+  @Patch('me')
+  @ApiOperation({ summary: 'Оновити власний профіль (ПІБ)' })
+  @ApiOkResponse({ type: SessionUserResponse })
+  updateProfile(
+    @CurrentUser() principal: AuthenticatedPrincipal,
+    @Body() dto: UpdateProfileDto,
+  ): Promise<SessionUserResponse> {
+    return this.auth.updateProfile(principal.sub, dto);
   }
 
   @Public()

@@ -7,6 +7,8 @@ import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
 import { ProfileMenu } from './ProfileMenu'
 import { SearchPalette } from './SearchPalette'
+import { EditProfileModal } from './EditProfileModal'
+import { ChangePasswordModal } from './ChangePasswordModal'
 
 const routeApi = getRouteApi('/_app')
 
@@ -16,6 +18,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
   const [profileOpen, setProfileOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [editProfileOpen, setEditProfileOpen] = useState(false)
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false)
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -56,7 +60,17 @@ export function AppShell({ children }: { children: ReactNode }) {
             void logout()
             void navigate({ to: '/login' })
           }}
+          onEditProfile={() => setEditProfileOpen(true)}
+          onChangePassword={() => setChangePasswordOpen(true)}
         />
+      )}
+
+      {editProfileOpen && (
+        <EditProfileModal user={user} onClose={() => setEditProfileOpen(false)} />
+      )}
+
+      {changePasswordOpen && (
+        <ChangePasswordModal onClose={() => setChangePasswordOpen(false)} />
       )}
     </div>
   )

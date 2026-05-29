@@ -104,6 +104,26 @@ export function resetPassword(token: string, password: string): Promise<void> {
   }).then(() => undefined)
 }
 
+export function updateProfile(token: string, fullName: string): Promise<string> {
+  return apiFetch<SessionUserResponse>('/auth/me', {
+    method: 'PATCH',
+    body: { fullName },
+    token,
+  }).then((response) => response.fullName)
+}
+
+export function changePassword(
+  token: string,
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> {
+  return apiFetch<{ message: string }>('/auth/password/change', {
+    method: 'POST',
+    body: { currentPassword, newPassword },
+    token,
+  }).then(() => undefined)
+}
+
 export function refreshTokens(refreshToken: string): Promise<AuthTokensResponse> {
   return apiFetch<AuthTokensResponse>('/auth/refresh', {
     method: 'POST',

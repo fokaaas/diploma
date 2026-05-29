@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'react'
 import type { Role, User } from '../../types/domain'
 import type { FoundationSession } from '../api/auth'
 import { logout as apiLogout } from '../api/auth'
+import { initialsOf } from '../initials'
 
 const STORAGE_KEY = 'fund-platform.session'
 
@@ -48,6 +49,15 @@ export const sessionStore = {
   setFoundationName(name: string): void {
     if (!session) return
     session = { ...session, foundationName: name }
+    persist()
+    emit()
+  },
+  setUserName(name: string): void {
+    if (!session) return
+    session = {
+      ...session,
+      user: { ...session.user, name, initials: initialsOf(name) },
+    }
     persist()
     emit()
   },
