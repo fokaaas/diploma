@@ -9,6 +9,9 @@ import { PasswordResetRepository } from './repos/password-reset.repo';
 import { CategoryRepository } from './repos/category.repo';
 import { ItemRepository } from './repos/item.repo';
 import { CounterpartyRepository } from './repos/counterparty.repo';
+import { RequestRepository } from './repos/request.repo';
+import { FileRepository } from './repos/file.repo';
+import { AuditLogRepository } from './repos/audit-log.repo';
 
 const repositories = [
   PlatformAdminRepository,
@@ -20,6 +23,9 @@ const repositories = [
   CategoryRepository,
   ItemRepository,
   CounterpartyRepository,
+  RequestRepository,
+  FileRepository,
+  AuditLogRepository,
 ];
 
 @Global()

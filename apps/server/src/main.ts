@@ -6,12 +6,17 @@ import {
 } from '@nestjs/platform-fastify';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import multipart from '@fastify/multipart';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
   );
+
+  await app.register(multipart, {
+    limits: { fileSize: 26214400, files: 10 },
+  });
 
   app.enableCors({
     methods: ['GET', 'HEAD', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
@@ -37,6 +42,8 @@ async function bootstrap() {
     .addTag('Foundations', 'Створення та перелік фондів-клієнтів')
     .addTag('Users', 'Запрошення та керування користувачами фонду')
     .addTag('Counterparties', 'Контрагенти: підрозділи, донори, постачальники')
+    .addTag('Requests', 'Заявки від військових підрозділів')
+    .addTag('Files', 'Вкладення (локальне сховище)')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);

@@ -23,6 +23,7 @@ import { InviteUserDto } from './body/invite-user.dto';
 import { ChangeRoleDto } from './body/change-role.dto';
 import { UserResponse } from './responses/user.response';
 import { InvitationResponse } from './responses/invitation.response';
+import { MemberResponse } from './responses/member.response';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -49,6 +50,16 @@ export class UsersController {
   @ApiOkResponse({ type: UserResponse, isArray: true })
   list(@CurrentFoundationUser() actor: UserPrincipal): Promise<UserResponse[]> {
     return this.users.list(actor);
+  }
+
+  @Get('members')
+  @Roles(Role.ADMIN, Role.COORDINATOR)
+  @ApiOperation({ summary: 'Активні користувачі для призначення виконавця' })
+  @ApiOkResponse({ type: MemberResponse, isArray: true })
+  members(
+    @CurrentFoundationUser() actor: UserPrincipal,
+  ): Promise<MemberResponse[]> {
+    return this.users.listMembers(actor);
   }
 
   @Patch(':id/block')

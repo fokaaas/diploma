@@ -19,6 +19,7 @@ import type { InviteUserDto } from './body/invite-user.dto';
 import type { ChangeRoleDto } from './body/change-role.dto';
 import type { UserResponse } from './responses/user.response';
 import type { InvitationResponse } from './responses/invitation.response';
+import type { MemberResponse } from './responses/member.response';
 
 const INVITE_TTL_MS = 72 * 60 * 60 * 1000;
 
@@ -81,6 +82,17 @@ export class UsersService {
   async list(actor: UserPrincipal): Promise<UserResponse[]> {
     const users = await this.users.findManyByFoundation(actor.foundationId);
     return users.map((user) => this.toUser(user));
+  }
+
+  async listMembers(actor: UserPrincipal): Promise<MemberResponse[]> {
+    const users = await this.users.findManyByFoundation(actor.foundationId);
+    return users
+      .filter((user) => user.status === UserStatus.ACTIVE)
+      .map((user) => ({
+        id: user.id,
+        fullName: user.fullName,
+        role: user.role,
+      }));
   }
 
   async setBlocked(

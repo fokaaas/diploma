@@ -90,3 +90,18 @@ export function resendInvitation(token: string, id: string): Promise<void> {
     token,
   }).then(() => undefined)
 }
+
+export interface Member {
+  id: string
+  fullName: string
+  role: Role
+}
+
+export function listMembers(token: string): Promise<Member[]> {
+  return apiFetch<{ id: string; fullName: string; role: BackendRole }[]>(
+    '/users/members',
+    { token },
+  ).then((rows) =>
+    rows.map((row) => ({ id: row.id, fullName: row.fullName, role: toRole(row.role) })),
+  )
+}

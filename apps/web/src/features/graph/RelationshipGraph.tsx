@@ -1,9 +1,9 @@
-import type { CSSProperties } from 'react'
-import { useToast } from '../../context/toast-context'
 import { Icon } from '../../components/ui/Icon'
-import type { IconName } from '../../components/ui/Icon'
+import { formatMoney } from '../../lib/format'
+import { REQUEST_STATUS_BY_KEY } from '../../data/statuses'
+import type { RequestDetail } from '../../lib/api/requests'
 
-type NodeKind = 'donor' | 'contrib' | 'procurement' | 'supplier' | 'request' | 'unit' | 'movement'
+type NodeKind = 'request' | 'unit' | 'procurement' | 'supplier'
 
 interface GraphNode {
   id: string
@@ -15,90 +15,132 @@ interface GraphNode {
   focused?: boolean
 }
 
-const NODES: GraphNode[] = [
-  { id: 'cp-201', kind: 'donor', label: 'Олег Шевченко', sub: 'Донор · 245 000 ₴', x: 80, y: 90 },
-  { id: 'cp-202', kind: 'donor', label: 'ТОВ «Аква-Сіті»', sub: 'Донор · 500 000 ₴', x: 80, y: 200 },
-  { id: 'cp-203', kind: 'donor', label: 'Громада «Львів-Захід»', sub: 'Донор · 168 400 ₴', x: 80, y: 310 },
-  { id: 'CN-2026-0512', kind: 'contrib', label: 'CN-2026-0512', sub: 'Внесок · 245 000 ₴', x: 320, y: 90 },
-  { id: 'CN-2026-0510', kind: 'contrib', label: 'CN-2026-0510', sub: 'Внесок · 500 000 ₴', x: 320, y: 200 },
-  { id: 'CN-2026-0511', kind: 'contrib', label: 'CN-2026-0511', sub: 'Внесок · 168 400 ₴', x: 320, y: 310 },
-  { id: 'PR-2026-0301', kind: 'procurement', label: 'PR-2026-0301', sub: 'Закупівля · 592 000 ₴', x: 580, y: 145 },
-  { id: 'PR-2026-0300', kind: 'procurement', label: 'PR-2026-0300', sub: 'Закупівля · 174 000 ₴', x: 580, y: 255 },
-  { id: 'cp-302', kind: 'supplier', label: 'ТОВ «Дрон-Технолоджис»', sub: 'Постачальник', x: 780, y: 200 },
-  { id: 'R-2026-0148', kind: 'request', label: 'R-2026-0148', sub: 'Заявка · 766 000 ₴', x: 1020, y: 200, focused: true },
-  { id: 'cp-101', kind: 'unit', label: '93 ОМБр «Холодний Яр»', sub: 'Підрозділ-ініціатор', x: 1260, y: 200 },
-  { id: 'M-1024', kind: 'movement', label: 'M-1024', sub: 'Прийом ×40', x: 780, y: 360 },
-  { id: 'M-1023', kind: 'movement', label: 'M-1023', sub: 'Видача (план)', x: 1020, y: 360 },
-]
-
-const EDGES: [string, string][] = [
-  ['cp-201', 'CN-2026-0512'],
-  ['cp-202', 'CN-2026-0510'],
-  ['cp-203', 'CN-2026-0511'],
-  ['CN-2026-0512', 'PR-2026-0301'],
-  ['CN-2026-0510', 'PR-2026-0301'],
-  ['CN-2026-0511', 'PR-2026-0300'],
-  ['PR-2026-0301', 'cp-302'],
-  ['PR-2026-0300', 'cp-302'],
-  ['PR-2026-0301', 'R-2026-0148'],
-  ['PR-2026-0300', 'R-2026-0148'],
-  ['R-2026-0148', 'cp-101'],
-  ['PR-2026-0301', 'M-1024'],
-  ['M-1024', 'M-1023'],
-  ['M-1023', 'R-2026-0148'],
-]
-
-const KIND: Record<NodeKind, { color: string; bg: string; fg: string; icon: IconName; label: string }> = {
-  donor: { color: '#8a7e3a', bg: '#fbe9cf', fg: '#7a5500', icon: 'contributions', label: 'Донор' },
-  contrib: { color: '#7a8c5c', bg: '#dde9d0', fg: '#3d5621', icon: 'contributions', label: 'Внесок' },
-  procurement: { color: '#c98a2e', bg: '#fff2d6', fg: '#7a5500', icon: 'procurements', label: 'Закупівля' },
-  supplier: { color: '#7a5db0', bg: '#e6dff1', fg: '#4c3373', icon: 'truck', label: 'Постачальник' },
-  request: { color: '#4a5d3a', bg: '#e3e8d0', fg: '#28301c', icon: 'requests', label: 'Заявка' },
-  unit: { color: '#5a7a3a', bg: '#dde9d0', fg: '#3d5621', icon: 'shield', label: 'Підрозділ' },
-  movement: { color: '#7a5d4a', bg: '#f1e6dc', fg: '#5a3c28', icon: 'box', label: 'Рух ТМЦ' },
+const KIND: Record<NodeKind, { color: string; fg: string; label: string }> = {
+  request: { color: '#4a5d3a', fg: '#28301c', label: 'Заявка' },
+  unit: { color: '#5a7a3a', fg: '#3d5621', label: 'Підрозділ' },
+  procurement: { color: '#c98a2e', fg: '#7a5500', label: 'Закупівля' },
+  supplier: { color: '#7a5db0', fg: '#4c3373', label: 'Постачальник' },
 }
 
-const NODE_BY_ID: Record<string, GraphNode> = Object.fromEntries(NODES.map((n) => [n.id, n]))
+const COL = { supplier: 30, procurement: 320, request: 610, unit: 900 }
+const NODE_W = 210
+const NODE_H = 56
+const ROW_H = 84
+const TOP = 40
+
+function buildGraph(detail: RequestDetail): {
+  nodes: GraphNode[]
+  edges: [string, string][]
+  width: number
+  height: number
+} {
+  const nodes: GraphNode[] = []
+  const edges: [string, string][] = []
+  const procurements = detail.linkedProcurements
+
+  const suppliers = new Map<string, string>()
+  procurements.forEach((p) => {
+    if (!suppliers.has(p.supplierName)) {
+      suppliers.set(p.supplierName, `supplier-${suppliers.size}`)
+    }
+  })
+
+  const stackH = Math.max(procurements.length, suppliers.size, 1) * ROW_H
+  const centerY = TOP + stackH / 2 - NODE_H / 2
+
+  nodes.push({
+    id: detail.id,
+    kind: 'request',
+    label: detail.number,
+    sub: `Заявка · ${formatMoney(detail.estimatedValue)}`,
+    x: COL.request,
+    y: centerY,
+    focused: true,
+  })
+  nodes.push({
+    id: detail.unitId,
+    kind: 'unit',
+    label: detail.unitName,
+    sub: 'Підрозділ-ініціатор',
+    x: COL.unit,
+    y: centerY,
+  })
+  edges.push([detail.id, detail.unitId])
+
+  Array.from(suppliers, ([name, id], i) => {
+    nodes.push({
+      id,
+      kind: 'supplier',
+      label: name,
+      sub: 'Постачальник',
+      x: COL.supplier,
+      y: TOP + i * ROW_H,
+    })
+  })
+
+  procurements.forEach((p, i) => {
+    nodes.push({
+      id: p.id,
+      kind: 'procurement',
+      label: p.number,
+      sub: `Закупівля · ${formatMoney(p.amount)}`,
+      x: COL.procurement,
+      y: TOP + i * ROW_H,
+    })
+    edges.push([p.id, detail.id])
+    const supplierId = suppliers.get(p.supplierName)
+    if (supplierId) edges.push([supplierId, p.id])
+  })
+
+  const maxY = nodes.reduce((m, n) => Math.max(m, n.y), 0)
+  return {
+    nodes,
+    edges,
+    width: COL.unit + NODE_W + 30,
+    height: Math.max(maxY + NODE_H + TOP, centerY + NODE_H + TOP),
+  }
+}
 
 interface RelationshipGraphProps {
-  rootId?: string
+  detail: RequestDetail
   onClose: () => void
 }
 
-export function RelationshipGraph({ rootId = 'R-2026-0148', onClose }: RelationshipGraphProps) {
-  const { showToast } = useToast()
+export function RelationshipGraph({ detail, onClose }: RelationshipGraphProps) {
+  const { nodes, edges, width, height } = buildGraph(detail)
+  const nodeById = new Map(nodes.map((n) => [n.id, n]))
+  const procurementTotal = detail.linkedProcurements.reduce(
+    (sum, p) => sum + p.amount,
+    0,
+  )
+  const legendKinds = Array.from(new Set(nodes.map((n) => n.kind)))
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div
         className="modal modal--lg"
-        style={{ maxWidth: 1400, height: '92vh', maxHeight: '92vh' }}
+        style={{ maxWidth: 1280, height: '88vh', maxHeight: '88vh' }}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="modal__header">
           <div>
             <h3 className="modal__title">
-              Граф зв'язків · <span className="mono">{rootId}</span>
+              Граф зв'язків · <span className="mono">{detail.number}</span>
             </h3>
             <div className="text-xs muted">
-              Аудит-трейл: донор → внесок → закупівля → постачальник → склад → видача → підрозділ
+              Заявка ↔ підрозділ та пов'язані закупівлі/постачальники
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn btn--sm" onClick={() => showToast('Граф експортовано у PNG')}>
-              <Icon name="download" size={14} />
-              PNG
-            </button>
-            <button className="modal__close" onClick={onClose} aria-label="Закрити">
-              <Icon name="x" size={18} />
-            </button>
-          </div>
+          <button className="modal__close" onClick={onClose} aria-label="Закрити">
+            <Icon name="x" size={18} />
+          </button>
         </div>
         <div style={{ display: 'flex', flex: 1, overflow: 'hidden', background: 'var(--surface-3)' }}>
           <div style={{ flex: 1, position: 'relative', overflow: 'auto' }}>
             <svg
-              viewBox="0 0 1400 480"
+              viewBox={`0 0 ${width} ${Math.max(height, 200)}`}
               preserveAspectRatio="xMidYMid meet"
-              style={{ width: '100%', height: '100%', minHeight: 480 }}
+              style={{ width: '100%', height: '100%', minHeight: 320 }}
             >
               <defs>
                 <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
@@ -109,14 +151,14 @@ export function RelationshipGraph({ rootId = 'R-2026-0148', onClose }: Relations
                 </pattern>
               </defs>
               <rect width="100%" height="100%" fill="url(#grid)" />
-              {EDGES.map(([from, to], i) => {
-                const a = NODE_BY_ID[from]
-                const b = NODE_BY_ID[to]
+              {edges.map(([from, to], i) => {
+                const a = nodeById.get(from)
+                const b = nodeById.get(to)
                 if (!a || !b) return null
-                const x1 = a.x + 120
-                const y1 = a.y + 24
+                const x1 = a.x + NODE_W
+                const y1 = a.y + NODE_H / 2
                 const x2 = b.x
-                const y2 = b.y + 24
+                const y2 = b.y + NODE_H / 2
                 const midX = (x1 + x2) / 2
                 return (
                   <path
@@ -130,15 +172,13 @@ export function RelationshipGraph({ rootId = 'R-2026-0148', onClose }: Relations
                   />
                 )
               })}
-              {NODES.map((n) => {
+              {nodes.map((n) => {
                 const k = KIND[n.kind]
                 return (
                   <g key={n.id} transform={`translate(${n.x},${n.y})`}>
                     <rect
-                      x="0"
-                      y="0"
-                      width="220"
-                      height="56"
+                      width={NODE_W}
+                      height={NODE_H}
                       rx="8"
                       fill={n.focused ? k.color : '#ffffff'}
                       stroke={k.color}
@@ -154,11 +194,8 @@ export function RelationshipGraph({ rootId = 'R-2026-0148', onClose }: Relations
                     >
                       {k.label}
                     </text>
-                    <text x="14" y="38" fontSize="13" fill={n.focused ? '#fff' : '#1c2014'} fontWeight="600">
-                      {n.label}
-                    </text>
-                    <text x="14" y="52" fontSize="10.5" fill={n.focused ? 'rgba(255,255,255,.85)' : '#5a5f48'}>
-                      {n.sub}
+                    <text x="14" y="40" fontSize="12.5" fill={n.focused ? '#fff' : '#1c2014'} fontWeight="600">
+                      {n.label.length > 26 ? `${n.label.slice(0, 25)}…` : n.label}
                     </text>
                   </g>
                 )
@@ -167,7 +204,7 @@ export function RelationshipGraph({ rootId = 'R-2026-0148', onClose }: Relations
           </div>
           <div
             style={{
-              width: 320,
+              width: 300,
               borderLeft: '1px solid var(--border)',
               background: 'var(--surface)',
               overflowY: 'auto',
@@ -176,52 +213,32 @@ export function RelationshipGraph({ rootId = 'R-2026-0148', onClose }: Relations
           >
             <h4 style={legendHeading}>Легенда</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {Object.entries(KIND).map(([key, value]) => (
-                <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {legendKinds.map((kind) => (
+                <div key={kind} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span
                     style={{
                       width: 12,
                       height: 12,
                       borderRadius: 3,
-                      background: value.bg,
-                      border: `1.5px solid ${value.color}`,
+                      border: `1.5px solid ${KIND[kind].color}`,
                     }}
                   />
-                  <span className="text-sm">{value.label}</span>
+                  <span className="text-sm">{KIND[kind].label}</span>
                 </div>
               ))}
             </div>
             <div className="divider" />
-            <h4 style={legendHeading}>Сутність у фокусі</h4>
-            <div style={{ background: 'var(--surface-2)', borderRadius: 6, padding: 14, marginBottom: 12 }}>
-              <div className="mono" style={{ fontWeight: 600, fontSize: 16 }}>
-                R-2026-0148
-              </div>
-              <div className="text-sm muted mb-2">93 ОМБр «Холодний Яр»</div>
-              <span className="badge badge--progress">В роботі</span>
-            </div>
             <h4 style={legendHeading}>Зведення</h4>
-            <dl className="kv" style={{ gridTemplateColumns: '1fr 1fr', fontSize: 12.5 }}>
+            <dl className="kv" style={{ gridTemplateColumns: '1fr auto', fontSize: 12.5 }}>
               <dt>Сума заявки</dt>
-              <dd>766 000 ₴</dd>
-              <dt>Покрито внесками</dt>
-              <dd>913 400 ₴</dd>
-              <dt>Закуплено</dt>
-              <dd>766 000 ₴</dd>
-              <dt>На складі</dt>
-              <dd>40 / 120 шт</dd>
-              <dt>Видано</dt>
-              <dd>0 / 160 шт</dd>
+              <dd>{formatMoney(detail.estimatedValue)}</dd>
+              <dt>Закупівель</dt>
+              <dd>{detail.linkedProcurements.length}</dd>
+              <dt>Сума закупівель</dt>
+              <dd>{formatMoney(procurementTotal)}</dd>
+              <dt>Статус</dt>
+              <dd>{REQUEST_STATUS_BY_KEY[detail.status].label}</dd>
             </dl>
-            <div className="divider" />
-            <button className="btn w-full mb-2" onClick={() => showToast('Розгорнуто вгору')}>
-              <Icon name="arrow-up" size={14} />
-              Розгорнути вгору (донори)
-            </button>
-            <button className="btn w-full" onClick={() => showToast('Розгорнуто вниз')}>
-              <Icon name="arrow-down" size={14} />
-              Розгорнути вниз (видача)
-            </button>
           </div>
         </div>
       </div>
@@ -229,10 +246,10 @@ export function RelationshipGraph({ rootId = 'R-2026-0148', onClose }: Relations
   )
 }
 
-const legendHeading: CSSProperties = {
+const legendHeading = {
   margin: '0 0 10px',
   fontSize: 14,
-  textTransform: 'uppercase',
+  textTransform: 'uppercase' as const,
   letterSpacing: '.06em',
   color: 'var(--text-faint)',
 }

@@ -34,6 +34,7 @@ import { Route as AppProcurementsProcurementIdRouteImport } from './routes/_app/
 import { Route as AppCounterpartiesCounterpartyIdRouteImport } from './routes/_app/counterparties/$counterpartyId'
 import { Route as AppContributionsNewRouteImport } from './routes/_app/contributions/new'
 import { Route as AppContributionsContributionIdRouteImport } from './routes/_app/contributions/$contributionId'
+import { Route as AppRequestsRequestIdEditRouteImport } from './routes/_app/requests/$requestId.edit'
 
 const SuperAdminRoute = SuperAdminRouteImport.update({
   id: '/super-admin',
@@ -162,6 +163,12 @@ const AppContributionsContributionIdRoute =
     path: '/contributions/$contributionId',
     getParentRoute: () => AppRoute,
   } as any)
+const AppRequestsRequestIdEditRoute =
+  AppRequestsRequestIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AppRequestsRequestIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -180,7 +187,7 @@ export interface FileRoutesByFullPath {
   '/counterparties/$counterpartyId': typeof AppCounterpartiesCounterpartyIdRoute
   '/procurements/$procurementId': typeof AppProcurementsProcurementIdRoute
   '/procurements/new': typeof AppProcurementsNewRoute
-  '/requests/$requestId': typeof AppRequestsRequestIdRoute
+  '/requests/$requestId': typeof AppRequestsRequestIdRouteWithChildren
   '/requests/new': typeof AppRequestsNewRoute
   '/warehouse/$sku': typeof AppWarehouseSkuRoute
   '/contributions/': typeof AppContributionsIndexRoute
@@ -188,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/procurements/': typeof AppProcurementsIndexRoute
   '/requests/': typeof AppRequestsIndexRoute
   '/warehouse/': typeof AppWarehouseIndexRoute
+  '/requests/$requestId/edit': typeof AppRequestsRequestIdEditRoute
 }
 export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
@@ -206,7 +214,7 @@ export interface FileRoutesByTo {
   '/counterparties/$counterpartyId': typeof AppCounterpartiesCounterpartyIdRoute
   '/procurements/$procurementId': typeof AppProcurementsProcurementIdRoute
   '/procurements/new': typeof AppProcurementsNewRoute
-  '/requests/$requestId': typeof AppRequestsRequestIdRoute
+  '/requests/$requestId': typeof AppRequestsRequestIdRouteWithChildren
   '/requests/new': typeof AppRequestsNewRoute
   '/warehouse/$sku': typeof AppWarehouseSkuRoute
   '/contributions': typeof AppContributionsIndexRoute
@@ -214,6 +222,7 @@ export interface FileRoutesByTo {
   '/procurements': typeof AppProcurementsIndexRoute
   '/requests': typeof AppRequestsIndexRoute
   '/warehouse': typeof AppWarehouseIndexRoute
+  '/requests/$requestId/edit': typeof AppRequestsRequestIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -234,7 +243,7 @@ export interface FileRoutesById {
   '/_app/counterparties/$counterpartyId': typeof AppCounterpartiesCounterpartyIdRoute
   '/_app/procurements/$procurementId': typeof AppProcurementsProcurementIdRoute
   '/_app/procurements/new': typeof AppProcurementsNewRoute
-  '/_app/requests/$requestId': typeof AppRequestsRequestIdRoute
+  '/_app/requests/$requestId': typeof AppRequestsRequestIdRouteWithChildren
   '/_app/requests/new': typeof AppRequestsNewRoute
   '/_app/warehouse/$sku': typeof AppWarehouseSkuRoute
   '/_app/contributions/': typeof AppContributionsIndexRoute
@@ -242,6 +251,7 @@ export interface FileRoutesById {
   '/_app/procurements/': typeof AppProcurementsIndexRoute
   '/_app/requests/': typeof AppRequestsIndexRoute
   '/_app/warehouse/': typeof AppWarehouseIndexRoute
+  '/_app/requests/$requestId/edit': typeof AppRequestsRequestIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -270,6 +280,7 @@ export interface FileRouteTypes {
     | '/procurements/'
     | '/requests/'
     | '/warehouse/'
+    | '/requests/$requestId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/forgot-password'
@@ -296,6 +307,7 @@ export interface FileRouteTypes {
     | '/procurements'
     | '/requests'
     | '/warehouse'
+    | '/requests/$requestId/edit'
   id:
     | '__root__'
     | '/_app'
@@ -323,6 +335,7 @@ export interface FileRouteTypes {
     | '/_app/procurements/'
     | '/_app/requests/'
     | '/_app/warehouse/'
+    | '/_app/requests/$requestId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -513,8 +526,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppContributionsContributionIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/requests/$requestId/edit': {
+      id: '/_app/requests/$requestId/edit'
+      path: '/edit'
+      fullPath: '/requests/$requestId/edit'
+      preLoaderRoute: typeof AppRequestsRequestIdEditRouteImport
+      parentRoute: typeof AppRequestsRequestIdRoute
+    }
   }
 }
+
+interface AppRequestsRequestIdRouteChildren {
+  AppRequestsRequestIdEditRoute: typeof AppRequestsRequestIdEditRoute
+}
+
+const AppRequestsRequestIdRouteChildren: AppRequestsRequestIdRouteChildren = {
+  AppRequestsRequestIdEditRoute: AppRequestsRequestIdEditRoute,
+}
+
+const AppRequestsRequestIdRouteWithChildren =
+  AppRequestsRequestIdRoute._addFileChildren(AppRequestsRequestIdRouteChildren)
 
 interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRoute
@@ -526,7 +557,7 @@ interface AppRouteChildren {
   AppCounterpartiesCounterpartyIdRoute: typeof AppCounterpartiesCounterpartyIdRoute
   AppProcurementsProcurementIdRoute: typeof AppProcurementsProcurementIdRoute
   AppProcurementsNewRoute: typeof AppProcurementsNewRoute
-  AppRequestsRequestIdRoute: typeof AppRequestsRequestIdRoute
+  AppRequestsRequestIdRoute: typeof AppRequestsRequestIdRouteWithChildren
   AppRequestsNewRoute: typeof AppRequestsNewRoute
   AppWarehouseSkuRoute: typeof AppWarehouseSkuRoute
   AppContributionsIndexRoute: typeof AppContributionsIndexRoute
@@ -546,7 +577,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCounterpartiesCounterpartyIdRoute: AppCounterpartiesCounterpartyIdRoute,
   AppProcurementsProcurementIdRoute: AppProcurementsProcurementIdRoute,
   AppProcurementsNewRoute: AppProcurementsNewRoute,
-  AppRequestsRequestIdRoute: AppRequestsRequestIdRoute,
+  AppRequestsRequestIdRoute: AppRequestsRequestIdRouteWithChildren,
   AppRequestsNewRoute: AppRequestsNewRoute,
   AppWarehouseSkuRoute: AppWarehouseSkuRoute,
   AppContributionsIndexRoute: AppContributionsIndexRoute,

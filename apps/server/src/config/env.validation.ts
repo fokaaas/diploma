@@ -12,6 +12,10 @@ class EnvironmentVariables {
   @IsString()
   @IsOptional()
   WEB_APP_URL?: string;
+
+  @IsString()
+  @IsOptional()
+  UPLOAD_DIR?: string;
 }
 
 export function validateEnv(

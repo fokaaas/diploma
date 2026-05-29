@@ -11,6 +11,11 @@ export const jwtConfig = registerAs('jwt', () => ({
   refreshTtlDays: Number(process.env.JWT_REFRESH_TTL_DAYS ?? 30),
 }));
 
+export const uploadConfig = registerAs('upload', () => ({
+  uploadDir: process.env.UPLOAD_DIR ?? './uploads',
+  maxFileSize: Number(process.env.UPLOAD_MAX_FILE_SIZE ?? 26214400),
+}));
+
 export const mailConfig = registerAs('mail', () => ({
   host: process.env.MAIL_HOST,
   port: Number(process.env.MAIL_PORT ?? 587),

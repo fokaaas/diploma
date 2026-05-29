@@ -1,15 +1,12 @@
-import { useState } from 'react'
 import { useToast } from '../../context/toast-context'
 import { AUDIT } from '../../data/audit'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { Icon } from '../../components/ui/Icon'
 import { Avatar } from '../../components/ui/Avatar'
 import { initialsOf } from '../../lib/initials'
-import { RelationshipGraph } from '../graph/RelationshipGraph'
 
 export function AuditScreen() {
   const { showToast } = useToast()
-  const [graphOpen, setGraphOpen] = useState(false)
 
   return (
     <div className="page">
@@ -17,16 +14,10 @@ export function AuditScreen() {
         title="Аудит та історія операцій"
         subtitle="Read-only журнал усіх змін у системі"
         actions={
-          <>
-            <button className="btn" onClick={() => setGraphOpen(true)}>
-              <Icon name="link" size={15} />
-              Граф зв'язків
-            </button>
-            <button className="btn" onClick={() => showToast('Журнал експортовано')}>
-              <Icon name="download" size={15} />
-              Експорт журналу
-            </button>
-          </>
+          <button className="btn" onClick={() => showToast('Журнал експортовано')}>
+            <Icon name="download" size={15} />
+            Експорт журналу
+          </button>
         }
       />
 
@@ -82,8 +73,6 @@ export function AuditScreen() {
           </tbody>
         </table>
       </div>
-
-      {graphOpen && <RelationshipGraph rootId="R-2026-0148" onClose={() => setGraphOpen(false)} />}
     </div>
   )
 }

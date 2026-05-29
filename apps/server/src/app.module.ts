@@ -12,6 +12,8 @@ import { FoundationsModule } from './modules/foundations/foundations.module';
 import { UsersModule } from './modules/users/users.module';
 import { DictionariesModule } from './modules/dictionaries/dictionaries.module';
 import { CounterpartiesModule } from './modules/counterparties/counterparties.module';
+import { RequestsModule } from './modules/requests/requests.module';
+import { FilesModule } from './modules/files/files.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { CounterpartiesModule } from './modules/counterparties/counterparties.mo
     UsersModule,
     DictionariesModule,
     CounterpartiesModule,
+    RequestsModule,
+    FilesModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
