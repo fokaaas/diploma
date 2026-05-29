@@ -27,6 +27,12 @@ export class DashboardQueryRepository {
     });
   }
 
+  countProcurements(foundationId: string, statuses: ProcurementStatus[]) {
+    return this.prisma.procurement.count({
+      where: { foundationId, status: { in: statuses } },
+    });
+  }
+
   aggregateProcurements(foundationId: string, statuses: ProcurementStatus[]) {
     return this.prisma.procurement.aggregate({
       where: { foundationId, status: { in: statuses } },

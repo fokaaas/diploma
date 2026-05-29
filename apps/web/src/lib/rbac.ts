@@ -18,15 +18,14 @@ export interface NavItem {
   icon: IconName
   path: AppSectionRoute
   roles: Role[]
-  count?: number
 }
 
 export const NAV: NavItem[] = [
   { key: 'dashboard', label: 'Дашборд', icon: 'dashboard', path: '/', roles: ['admin', 'coordinator', 'accountant', 'auditor'] },
-  { key: 'requests', label: 'Заявки', icon: 'requests', path: '/requests', roles: ['admin', 'coordinator', 'auditor'], count: 24 },
+  { key: 'requests', label: 'Заявки', icon: 'requests', path: '/requests', roles: ['admin', 'coordinator', 'auditor'] },
   { key: 'counterparties', label: 'Контрагенти', icon: 'counterparties', path: '/counterparties', roles: ['admin', 'coordinator', 'accountant', 'auditor'] },
   { key: 'contributions', label: 'Благодійні внески', icon: 'contributions', path: '/contributions', roles: ['admin', 'accountant', 'auditor'] },
-  { key: 'procurements', label: 'Закупівлі', icon: 'procurements', path: '/procurements', roles: ['admin', 'coordinator', 'accountant', 'auditor'], count: 8 },
+  { key: 'procurements', label: 'Закупівлі', icon: 'procurements', path: '/procurements', roles: ['admin', 'coordinator', 'accountant', 'auditor'] },
   { key: 'warehouse', label: 'Склад', icon: 'warehouse', path: '/warehouse', roles: ['admin', 'coordinator', 'auditor'] },
   { key: 'reports', label: 'Звітність', icon: 'reports', path: '/reports', roles: ['admin', 'accountant', 'auditor'] },
   { key: 'audit', label: 'Аудит та історія', icon: 'audit', path: '/audit', roles: ['admin', 'auditor'] },

@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import { getRouteApi, useNavigate } from '@tanstack/react-router'
 import { useAuth } from '../../lib/auth/session'
 import { ROLE_LABELS } from '../../data/users'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
 import { ProfileMenu } from './ProfileMenu'
 
+const routeApi = getRouteApi('/_app')
+
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, role, foundationName, logout } = useAuth()
+  const { counts } = routeApi.useLoaderData()
   const navigate = useNavigate()
   const [profileOpen, setProfileOpen] = useState(false)
 
@@ -17,7 +20,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="app-shell">
-      <Sidebar role={role} foundationName={foundationName ?? ''} />
+      <Sidebar role={role} foundationName={foundationName ?? ''} counts={counts} />
       <div className="main">
         <TopBar
           user={user}

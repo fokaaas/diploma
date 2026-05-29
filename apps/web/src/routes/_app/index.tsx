@@ -4,26 +4,24 @@ import { sessionStore } from '../../lib/auth/session'
 import { getDashboard, type DashboardOverview } from '../../lib/api/dashboard'
 
 interface DashboardSearch {
-  month: string
+  month?: string
 }
 
 export interface DashboardData {
   overview: DashboardOverview | null
 }
 
-function currentMonth(): string {
+export function currentMonth(): string {
   const now = new Date()
   return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`
 }
 
 export const Route = createFileRoute('/_app/')({
-  validateSearch: (search: Record<string, unknown>): DashboardSearch => ({
-    month:
-      typeof search.month === 'string' && /^\d{4}-\d{2}$/.test(search.month)
-        ? search.month
-        : currentMonth(),
-  }),
-  loaderDeps: ({ search }) => ({ month: search.month }),
+  validateSearch: (search: Record<string, unknown>): DashboardSearch =>
+    typeof search.month === 'string' && /^\d{4}-\d{2}$/.test(search.month)
+      ? { month: search.month }
+      : {},
+  loaderDeps: ({ search }) => ({ month: search.month ?? currentMonth() }),
   loader: async ({ deps }): Promise<DashboardData> => {
     const token = sessionStore.getAccessToken()
     if (!token) return { overview: null }
@@ -34,5 +32,5 @@ export const Route = createFileRoute('/_app/')({
 
 function DashboardRoute() {
   const { month } = Route.useSearch()
-  return <DashboardScreen month={month} />
+  return <DashboardScreen month={month ?? currentMonth()} />
 }
