@@ -13,6 +13,7 @@ export interface CreateFileInput {
   requestId?: string | null;
   contributionId?: string | null;
   procurementId?: string | null;
+  reportId?: string | null;
 }
 
 @Injectable()

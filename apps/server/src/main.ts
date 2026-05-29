@@ -48,6 +48,7 @@ async function bootstrap() {
     .addTag('Procurements', 'Закупівлі та замовлення у постачальників')
     .addTag('Warehouses', 'Склади фонду')
     .addTag('Stock', 'Склад: залишки, рух ТМЦ, прийом і видача')
+    .addTag('Reports', 'Звітність: внутрішні та публічні звіти')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);

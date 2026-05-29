@@ -19,6 +19,8 @@ import { StockLevelRepository } from './repos/stock-level.repo';
 import { StockMovementRepository } from './repos/stock-movement.repo';
 import { GoodsReceiptRepository } from './repos/goods-receipt.repo';
 import { IssuanceRepository } from './repos/issuance.repo';
+import { ReportRepository } from './repos/report.repo';
+import { ReportQueryRepository } from './repos/report-query.repo';
 
 const repositories = [
   PlatformAdminRepository,
@@ -40,6 +42,8 @@ const repositories = [
   StockMovementRepository,
   GoodsReceiptRepository,
   IssuanceRepository,
+  ReportRepository,
+  ReportQueryRepository,
 ];
 
 @Global()

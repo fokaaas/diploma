@@ -14,6 +14,7 @@ export interface StoreFileParams {
   requestId?: string;
   contributionId?: string;
   procurementId?: string;
+  reportId?: string;
 }
 
 export interface DownloadableFile {
@@ -39,6 +40,7 @@ function resolveTarget(params: StoreFileParams): {
     return { scope: 'contributions', ownerId: params.contributionId };
   if (params.procurementId)
     return { scope: 'procurements', ownerId: params.procurementId };
+  if (params.reportId) return { scope: 'reports', ownerId: params.reportId };
   return { scope: 'misc', ownerId: 'misc' };
 }
 
@@ -80,6 +82,7 @@ export class FilesService {
       requestId: params.requestId ?? null,
       contributionId: params.contributionId ?? null,
       procurementId: params.procurementId ?? null,
+      reportId: params.reportId ?? null,
     });
     return toFileResponse(file);
   }
