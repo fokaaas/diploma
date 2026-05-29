@@ -5,7 +5,9 @@ import { generateToken } from '../../common/crypto';
 import { ROLE_LABELS } from '../../common/role-labels';
 import { EmailService } from '../../infrastructure/email/email.service';
 import { Role } from '../../generated/prisma/enums';
+import type { UserPrincipal } from '../../common/data/authenticated-principal';
 import { FoundationRepository } from '../../infrastructure/database/repos/foundation.repo';
+import { AuditLogRepository } from '../../infrastructure/database/repos/audit-log.repo';
 import type { CreateFoundationDto } from './body/create-foundation.dto';
 import type { UpdateFoundationDto } from './body/update-foundation.dto';
 import type { FoundationResponse } from './responses/foundation.response';
@@ -25,6 +27,7 @@ export class FoundationsService {
   constructor(
     private readonly foundations: FoundationRepository,
     private readonly email: EmailService,
+    private readonly audits: AuditLogRepository,
     @Inject(appConfig.KEY) private readonly app: ConfigType<typeof appConfig>,
   ) {}
 
@@ -62,10 +65,10 @@ export class FoundationsService {
   }
 
   async update(
-    foundationId: string,
+    actor: UserPrincipal,
     dto: UpdateFoundationDto,
   ): Promise<FoundationResponse> {
-    const foundation = await this.foundations.update(foundationId, {
+    const foundation = await this.foundations.update(actor.foundationId, {
       name: dto.shortName,
       shortName: dto.shortName,
       legalName: dto.legalName,
@@ -73,6 +76,14 @@ export class FoundationsService {
       taxId: dto.taxId ?? null,
       address: dto.address ?? null,
       website: dto.website ?? null,
+    });
+    await this.audits.create({
+      foundationId: actor.foundationId,
+      actorId: actor.sub,
+      action: 'Оновлено реквізити фонду',
+      targetType: 'FOUNDATION',
+      targetId: actor.foundationId,
+      summary: foundation.shortName,
     });
     return this.toResponse(foundation);
   }

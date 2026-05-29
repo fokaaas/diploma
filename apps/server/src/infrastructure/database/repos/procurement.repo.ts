@@ -98,6 +98,13 @@ export class ProcurementRepository {
     return this.prisma.procurement.findUnique({ where: { id } });
   }
 
+  findRefs(ids: string[]) {
+    return this.prisma.procurement.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, number: true },
+    });
+  }
+
   create(input: CreateProcurementInput) {
     const { lines, funding, ...rest } = input;
     return this.prisma.procurement.create({

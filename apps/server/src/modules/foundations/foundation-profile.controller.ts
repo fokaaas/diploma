@@ -38,6 +38,6 @@ export class FoundationProfileController {
     @CurrentFoundationUser() user: UserPrincipal,
     @Body() dto: UpdateFoundationDto,
   ): Promise<FoundationResponse> {
-    return this.foundations.update(user.foundationId, dto);
+    return this.foundations.update(user, dto);
   }
 }

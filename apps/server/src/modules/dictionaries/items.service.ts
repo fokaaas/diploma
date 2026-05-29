@@ -8,6 +8,7 @@ import { prismaErrorCode } from '../../common/prisma-error';
 import type { UserPrincipal } from '../../common/data/authenticated-principal';
 import { ItemRepository } from '../../infrastructure/database/repos/item.repo';
 import { CategoryRepository } from '../../infrastructure/database/repos/category.repo';
+import { AuditLogRepository } from '../../infrastructure/database/repos/audit-log.repo';
 import type { CreateItemDto } from './body/create-item.dto';
 import type { ItemResponse } from './responses/item.response';
 
@@ -20,6 +21,7 @@ export class ItemsService {
   constructor(
     private readonly items: ItemRepository,
     private readonly categories: CategoryRepository,
+    private readonly audits: AuditLogRepository,
   ) {}
 
   async list(actor: UserPrincipal): Promise<ItemResponse[]> {
@@ -45,6 +47,7 @@ export class ItemsService {
         minStock: dto.minStock ?? 0,
         lastPrice: dto.lastPrice ?? null,
       });
+      await this.audit(actor, 'Додано позицію', item.id, item.sku);
       return this.toResponse({ ...item, category });
     } catch (error) {
       if (prismaErrorCode(error) === 'P2002') {
@@ -69,6 +72,23 @@ export class ItemsService {
       }
       throw error;
     }
+    await this.audit(actor, 'Видалено позицію', id, item.sku);
+  }
+
+  private audit(
+    actor: UserPrincipal,
+    action: string,
+    itemId: string,
+    summary: string,
+  ) {
+    return this.audits.create({
+      foundationId: actor.foundationId,
+      actorId: actor.sub,
+      action,
+      targetType: 'ITEM',
+      targetId: itemId,
+      summary,
+    });
   }
 
   private toResponse(item: ItemRecord): ItemResponse {

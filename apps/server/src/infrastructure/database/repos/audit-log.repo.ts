@@ -25,4 +25,13 @@ export class AuditLogRepository {
       include: { actor: { select: { fullName: true } } },
     });
   }
+
+  findManyByFoundation(foundationId: string) {
+    return this.prisma.auditLog.findMany({
+      where: { foundationId },
+      orderBy: { createdAt: 'desc' },
+      take: 1000,
+      include: { actor: { select: { fullName: true } } },
+    });
+  }
 }

@@ -101,6 +101,13 @@ export class RequestRepository {
     return this.prisma.request.findUnique({ where: { id } });
   }
 
+  findRefs(ids: string[]) {
+    return this.prisma.request.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, number: true },
+    });
+  }
+
   create(input: CreateRequestInput) {
     const { lines, ...rest } = input;
     return this.prisma.request.create({

@@ -15,6 +15,7 @@ import { EmailService } from '../../infrastructure/email/email.service';
 import { UserStatus } from '../../generated/prisma/enums';
 import { UserRepository } from '../../infrastructure/database/repos/user.repo';
 import { InvitationRepository } from '../../infrastructure/database/repos/invitation.repo';
+import { AuditLogRepository } from '../../infrastructure/database/repos/audit-log.repo';
 import type { InviteUserDto } from './body/invite-user.dto';
 import type { ChangeRoleDto } from './body/change-role.dto';
 import type { UserResponse } from './responses/user.response';
@@ -32,6 +33,7 @@ export class UsersService {
     private readonly users: UserRepository,
     private readonly invitations: InvitationRepository,
     private readonly email: EmailService,
+    private readonly audits: AuditLogRepository,
     @Inject(appConfig.KEY) private readonly app: ConfigType<typeof appConfig>,
   ) {}
 
@@ -48,13 +50,19 @@ export class UsersService {
       throw new UnauthorizedException();
     }
 
-    await this.users.create({
+    const created = await this.users.create({
       foundationId: actor.foundationId,
       fullName: dto.fullName,
       email: dto.email,
       role: dto.role,
       status: UserStatus.INVITED,
     });
+    await this.audit(
+      actor,
+      created.id,
+      'Запрошено користувача',
+      `${dto.fullName} · роль ${ROLE_LABELS[dto.role]}`,
+    );
 
     const token = generateToken();
     const invitation = await this.invitations.create({
@@ -111,6 +119,12 @@ export class UsersService {
       userId,
       blocked ? UserStatus.BLOCKED : UserStatus.ACTIVE,
     );
+    await this.audit(
+      actor,
+      userId,
+      blocked ? 'Заблоковано користувача' : 'Розблоковано користувача',
+      target.fullName,
+    );
     return this.toUser(updated);
   }
 
@@ -127,6 +141,12 @@ export class UsersService {
       throw new NotFoundException('Користувача не знайдено');
     }
     const updated = await this.users.setRole(userId, dto.role);
+    await this.audit(
+      actor,
+      userId,
+      'Змінено роль',
+      `${target.fullName} → ${ROLE_LABELS[dto.role]}`,
+    );
     return this.toUser(updated);
   }
 
@@ -164,7 +184,29 @@ export class UsersService {
       email: target.email,
       acceptUrl: `${this.app.webAppUrl}/invite?token=${token}`,
     });
+    await this.audit(
+      actor,
+      userId,
+      'Повторно надіслано запрошення',
+      target.fullName,
+    );
     return this.toInvitation(invitation);
+  }
+
+  private audit(
+    actor: UserPrincipal,
+    userId: string,
+    action: string,
+    summary: string,
+  ) {
+    return this.audits.create({
+      foundationId: actor.foundationId,
+      actorId: actor.sub,
+      action,
+      targetType: 'USER',
+      targetId: userId,
+      summary,
+    });
   }
 
   private toUser(user: UserRecord): UserResponse {

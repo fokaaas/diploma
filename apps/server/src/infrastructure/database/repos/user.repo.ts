@@ -64,4 +64,11 @@ export class UserRepository {
       data: { lastSeenAt: new Date() },
     });
   }
+
+  findRefs(ids: string[]) {
+    return this.prisma.user.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, fullName: true },
+    });
+  }
 }

@@ -83,6 +83,13 @@ export class ContributionRepository {
     return this.prisma.contribution.findUnique({ where: { id } });
   }
 
+  findRefs(ids: string[]) {
+    return this.prisma.contribution.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, number: true },
+    });
+  }
+
   create(input: CreateContributionInput) {
     return this.prisma.contribution.create({ data: input });
   }

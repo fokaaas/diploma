@@ -23,4 +23,11 @@ export class CategoryRepository {
   delete(id: string) {
     return this.prisma.category.delete({ where: { id } });
   }
+
+  findRefs(ids: string[]) {
+    return this.prisma.category.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, name: true },
+    });
+  }
 }

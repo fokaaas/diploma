@@ -7,6 +7,7 @@ import {
 import { prismaErrorCode } from '../../common/prisma-error';
 import type { UserPrincipal } from '../../common/data/authenticated-principal';
 import { CategoryRepository } from '../../infrastructure/database/repos/category.repo';
+import { AuditLogRepository } from '../../infrastructure/database/repos/audit-log.repo';
 import type { CreateCategoryDto } from './body/create-category.dto';
 import type { CategoryResponse } from './responses/category.response';
 
@@ -14,7 +15,10 @@ type CategoryRecord = Awaited<ReturnType<CategoryRepository['create']>>;
 
 @Injectable()
 export class CategoriesService {
-  constructor(private readonly categories: CategoryRepository) {}
+  constructor(
+    private readonly categories: CategoryRepository,
+    private readonly audits: AuditLogRepository,
+  ) {}
 
   async list(actor: UserPrincipal): Promise<CategoryResponse[]> {
     const records = await this.categories.findManyByFoundation(
@@ -32,6 +36,7 @@ export class CategoriesService {
         foundationId: actor.foundationId,
         name: dto.name,
       });
+      await this.audit(actor, 'Додано категорію', category.id, category.name);
       return this.toResponse(category);
     } catch (error) {
       if (prismaErrorCode(error) === 'P2002') {
@@ -56,6 +61,23 @@ export class CategoriesService {
       }
       throw error;
     }
+    await this.audit(actor, 'Видалено категорію', id, category.name);
+  }
+
+  private audit(
+    actor: UserPrincipal,
+    action: string,
+    categoryId: string,
+    summary: string,
+  ) {
+    return this.audits.create({
+      foundationId: actor.foundationId,
+      actorId: actor.sub,
+      action,
+      targetType: 'CATEGORY',
+      targetId: categoryId,
+      summary,
+    });
   }
 
   private toResponse(category: CategoryRecord): CategoryResponse {

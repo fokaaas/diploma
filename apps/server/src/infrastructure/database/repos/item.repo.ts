@@ -34,4 +34,11 @@ export class ItemRepository {
   delete(id: string) {
     return this.prisma.item.delete({ where: { id } });
   }
+
+  findRefs(ids: string[]) {
+    return this.prisma.item.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, sku: true },
+    });
+  }
 }
