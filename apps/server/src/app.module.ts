@@ -11,6 +11,7 @@ import { PlatformModule } from './modules/platform/platform.module';
 import { FoundationsModule } from './modules/foundations/foundations.module';
 import { UsersModule } from './modules/users/users.module';
 import { DictionariesModule } from './modules/dictionaries/dictionaries.module';
+import { CounterpartiesModule } from './modules/counterparties/counterparties.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { DictionariesModule } from './modules/dictionaries/dictionaries.module';
     FoundationsModule,
     UsersModule,
     DictionariesModule,
+    CounterpartiesModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })

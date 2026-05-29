@@ -8,6 +8,7 @@ import { RefreshTokenRepository } from './repos/refresh-token.repo';
 import { PasswordResetRepository } from './repos/password-reset.repo';
 import { CategoryRepository } from './repos/category.repo';
 import { ItemRepository } from './repos/item.repo';
+import { CounterpartyRepository } from './repos/counterparty.repo';
 
 const repositories = [
   PlatformAdminRepository,
@@ -18,6 +19,7 @@ const repositories = [
   PasswordResetRepository,
   CategoryRepository,
   ItemRepository,
+  CounterpartyRepository,
 ];
 
 @Global()

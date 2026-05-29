@@ -749,7 +749,7 @@ table.data .col-muted {
 
 .kv {
   display: grid;
-  grid-template-columns: 160px 1fr;
+  grid-template-columns: 160px minmax(0, 1fr);
   gap: 8px 14px;
   font-size: var(--fs-md);
 }
@@ -759,6 +759,8 @@ table.data .col-muted {
 }
 .kv dd {
   margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 /* === Activity / timeline === */

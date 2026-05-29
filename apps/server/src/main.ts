@@ -36,6 +36,7 @@ async function bootstrap() {
     .addTag('Platform', 'Аутентифікація суперадміністратора платформи')
     .addTag('Foundations', 'Створення та перелік фондів-клієнтів')
     .addTag('Users', 'Запрошення та керування користувачами фонду')
+    .addTag('Counterparties', 'Контрагенти: підрозділи, донори, постачальники')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);
