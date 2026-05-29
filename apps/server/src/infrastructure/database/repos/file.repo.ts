@@ -11,6 +11,8 @@ export interface CreateFileInput {
   kind: FileKind;
   uploadedById: string;
   requestId?: string | null;
+  contributionId?: string | null;
+  procurementId?: string | null;
 }
 
 @Injectable()
@@ -27,6 +29,14 @@ export class FileRepository {
 
   findManyByRequest(requestId: string) {
     return this.prisma.file.findMany({ where: { requestId } });
+  }
+
+  findManyByContribution(contributionId: string) {
+    return this.prisma.file.findMany({ where: { contributionId } });
+  }
+
+  findManyByProcurement(procurementId: string) {
+    return this.prisma.file.findMany({ where: { procurementId } });
   }
 
   delete(id: string) {

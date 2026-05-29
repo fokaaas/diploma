@@ -22,14 +22,15 @@ export class LocalStorageService {
 
   async save(
     foundationId: string,
-    requestId: string,
+    scope: string,
+    ownerId: string,
     originalName: string,
     data: Buffer,
   ): Promise<string> {
     const relativePath = join(
       foundationId,
-      'requests',
-      requestId,
+      scope,
+      ownerId,
       `${randomUUID()}__${sanitize(originalName)}`,
     );
     const absolute = join(this.root, relativePath);

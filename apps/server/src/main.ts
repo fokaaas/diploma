@@ -44,6 +44,10 @@ async function bootstrap() {
     .addTag('Counterparties', 'Контрагенти: підрозділи, донори, постачальники')
     .addTag('Requests', 'Заявки від військових підрозділів')
     .addTag('Files', 'Вкладення (локальне сховище)')
+    .addTag('Contributions', 'Благодійні внески: грошові та натуральні')
+    .addTag('Procurements', 'Закупівлі та замовлення у постачальників')
+    .addTag('Warehouses', 'Склади фонду')
+    .addTag('Stock', 'Склад: залишки, рух ТМЦ, прийом і видача')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);

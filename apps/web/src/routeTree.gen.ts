@@ -35,6 +35,8 @@ import { Route as AppCounterpartiesCounterpartyIdRouteImport } from './routes/_a
 import { Route as AppContributionsNewRouteImport } from './routes/_app/contributions/new'
 import { Route as AppContributionsContributionIdRouteImport } from './routes/_app/contributions/$contributionId'
 import { Route as AppRequestsRequestIdEditRouteImport } from './routes/_app/requests/$requestId.edit'
+import { Route as AppProcurementsProcurementIdEditRouteImport } from './routes/_app/procurements/$procurementId.edit'
+import { Route as AppContributionsContributionIdEditRouteImport } from './routes/_app/contributions/$contributionId.edit'
 
 const SuperAdminRoute = SuperAdminRouteImport.update({
   id: '/super-admin',
@@ -169,6 +171,18 @@ const AppRequestsRequestIdEditRoute =
     path: '/edit',
     getParentRoute: () => AppRequestsRequestIdRoute,
   } as any)
+const AppProcurementsProcurementIdEditRoute =
+  AppProcurementsProcurementIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AppProcurementsProcurementIdRoute,
+  } as any)
+const AppContributionsContributionIdEditRoute =
+  AppContributionsContributionIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AppContributionsContributionIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -182,10 +196,10 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AppAdminRoute
   '/audit': typeof AppAuditRoute
   '/reports': typeof AppReportsRoute
-  '/contributions/$contributionId': typeof AppContributionsContributionIdRoute
+  '/contributions/$contributionId': typeof AppContributionsContributionIdRouteWithChildren
   '/contributions/new': typeof AppContributionsNewRoute
   '/counterparties/$counterpartyId': typeof AppCounterpartiesCounterpartyIdRoute
-  '/procurements/$procurementId': typeof AppProcurementsProcurementIdRoute
+  '/procurements/$procurementId': typeof AppProcurementsProcurementIdRouteWithChildren
   '/procurements/new': typeof AppProcurementsNewRoute
   '/requests/$requestId': typeof AppRequestsRequestIdRouteWithChildren
   '/requests/new': typeof AppRequestsNewRoute
@@ -195,6 +209,8 @@ export interface FileRoutesByFullPath {
   '/procurements/': typeof AppProcurementsIndexRoute
   '/requests/': typeof AppRequestsIndexRoute
   '/warehouse/': typeof AppWarehouseIndexRoute
+  '/contributions/$contributionId/edit': typeof AppContributionsContributionIdEditRoute
+  '/procurements/$procurementId/edit': typeof AppProcurementsProcurementIdEditRoute
   '/requests/$requestId/edit': typeof AppRequestsRequestIdEditRoute
 }
 export interface FileRoutesByTo {
@@ -209,10 +225,10 @@ export interface FileRoutesByTo {
   '/audit': typeof AppAuditRoute
   '/reports': typeof AppReportsRoute
   '/': typeof AppIndexRoute
-  '/contributions/$contributionId': typeof AppContributionsContributionIdRoute
+  '/contributions/$contributionId': typeof AppContributionsContributionIdRouteWithChildren
   '/contributions/new': typeof AppContributionsNewRoute
   '/counterparties/$counterpartyId': typeof AppCounterpartiesCounterpartyIdRoute
-  '/procurements/$procurementId': typeof AppProcurementsProcurementIdRoute
+  '/procurements/$procurementId': typeof AppProcurementsProcurementIdRouteWithChildren
   '/procurements/new': typeof AppProcurementsNewRoute
   '/requests/$requestId': typeof AppRequestsRequestIdRouteWithChildren
   '/requests/new': typeof AppRequestsNewRoute
@@ -222,6 +238,8 @@ export interface FileRoutesByTo {
   '/procurements': typeof AppProcurementsIndexRoute
   '/requests': typeof AppRequestsIndexRoute
   '/warehouse': typeof AppWarehouseIndexRoute
+  '/contributions/$contributionId/edit': typeof AppContributionsContributionIdEditRoute
+  '/procurements/$procurementId/edit': typeof AppProcurementsProcurementIdEditRoute
   '/requests/$requestId/edit': typeof AppRequestsRequestIdEditRoute
 }
 export interface FileRoutesById {
@@ -238,10 +256,10 @@ export interface FileRoutesById {
   '/_app/audit': typeof AppAuditRoute
   '/_app/reports': typeof AppReportsRoute
   '/_app/': typeof AppIndexRoute
-  '/_app/contributions/$contributionId': typeof AppContributionsContributionIdRoute
+  '/_app/contributions/$contributionId': typeof AppContributionsContributionIdRouteWithChildren
   '/_app/contributions/new': typeof AppContributionsNewRoute
   '/_app/counterparties/$counterpartyId': typeof AppCounterpartiesCounterpartyIdRoute
-  '/_app/procurements/$procurementId': typeof AppProcurementsProcurementIdRoute
+  '/_app/procurements/$procurementId': typeof AppProcurementsProcurementIdRouteWithChildren
   '/_app/procurements/new': typeof AppProcurementsNewRoute
   '/_app/requests/$requestId': typeof AppRequestsRequestIdRouteWithChildren
   '/_app/requests/new': typeof AppRequestsNewRoute
@@ -251,6 +269,8 @@ export interface FileRoutesById {
   '/_app/procurements/': typeof AppProcurementsIndexRoute
   '/_app/requests/': typeof AppRequestsIndexRoute
   '/_app/warehouse/': typeof AppWarehouseIndexRoute
+  '/_app/contributions/$contributionId/edit': typeof AppContributionsContributionIdEditRoute
+  '/_app/procurements/$procurementId/edit': typeof AppProcurementsProcurementIdEditRoute
   '/_app/requests/$requestId/edit': typeof AppRequestsRequestIdEditRoute
 }
 export interface FileRouteTypes {
@@ -280,6 +300,8 @@ export interface FileRouteTypes {
     | '/procurements/'
     | '/requests/'
     | '/warehouse/'
+    | '/contributions/$contributionId/edit'
+    | '/procurements/$procurementId/edit'
     | '/requests/$requestId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -307,6 +329,8 @@ export interface FileRouteTypes {
     | '/procurements'
     | '/requests'
     | '/warehouse'
+    | '/contributions/$contributionId/edit'
+    | '/procurements/$procurementId/edit'
     | '/requests/$requestId/edit'
   id:
     | '__root__'
@@ -335,6 +359,8 @@ export interface FileRouteTypes {
     | '/_app/procurements/'
     | '/_app/requests/'
     | '/_app/warehouse/'
+    | '/_app/contributions/$contributionId/edit'
+    | '/_app/procurements/$procurementId/edit'
     | '/_app/requests/$requestId/edit'
   fileRoutesById: FileRoutesById
 }
@@ -533,8 +559,52 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRequestsRequestIdEditRouteImport
       parentRoute: typeof AppRequestsRequestIdRoute
     }
+    '/_app/procurements/$procurementId/edit': {
+      id: '/_app/procurements/$procurementId/edit'
+      path: '/edit'
+      fullPath: '/procurements/$procurementId/edit'
+      preLoaderRoute: typeof AppProcurementsProcurementIdEditRouteImport
+      parentRoute: typeof AppProcurementsProcurementIdRoute
+    }
+    '/_app/contributions/$contributionId/edit': {
+      id: '/_app/contributions/$contributionId/edit'
+      path: '/edit'
+      fullPath: '/contributions/$contributionId/edit'
+      preLoaderRoute: typeof AppContributionsContributionIdEditRouteImport
+      parentRoute: typeof AppContributionsContributionIdRoute
+    }
   }
 }
+
+interface AppContributionsContributionIdRouteChildren {
+  AppContributionsContributionIdEditRoute: typeof AppContributionsContributionIdEditRoute
+}
+
+const AppContributionsContributionIdRouteChildren: AppContributionsContributionIdRouteChildren =
+  {
+    AppContributionsContributionIdEditRoute:
+      AppContributionsContributionIdEditRoute,
+  }
+
+const AppContributionsContributionIdRouteWithChildren =
+  AppContributionsContributionIdRoute._addFileChildren(
+    AppContributionsContributionIdRouteChildren,
+  )
+
+interface AppProcurementsProcurementIdRouteChildren {
+  AppProcurementsProcurementIdEditRoute: typeof AppProcurementsProcurementIdEditRoute
+}
+
+const AppProcurementsProcurementIdRouteChildren: AppProcurementsProcurementIdRouteChildren =
+  {
+    AppProcurementsProcurementIdEditRoute:
+      AppProcurementsProcurementIdEditRoute,
+  }
+
+const AppProcurementsProcurementIdRouteWithChildren =
+  AppProcurementsProcurementIdRoute._addFileChildren(
+    AppProcurementsProcurementIdRouteChildren,
+  )
 
 interface AppRequestsRequestIdRouteChildren {
   AppRequestsRequestIdEditRoute: typeof AppRequestsRequestIdEditRoute
@@ -552,10 +622,10 @@ interface AppRouteChildren {
   AppAuditRoute: typeof AppAuditRoute
   AppReportsRoute: typeof AppReportsRoute
   AppIndexRoute: typeof AppIndexRoute
-  AppContributionsContributionIdRoute: typeof AppContributionsContributionIdRoute
+  AppContributionsContributionIdRoute: typeof AppContributionsContributionIdRouteWithChildren
   AppContributionsNewRoute: typeof AppContributionsNewRoute
   AppCounterpartiesCounterpartyIdRoute: typeof AppCounterpartiesCounterpartyIdRoute
-  AppProcurementsProcurementIdRoute: typeof AppProcurementsProcurementIdRoute
+  AppProcurementsProcurementIdRoute: typeof AppProcurementsProcurementIdRouteWithChildren
   AppProcurementsNewRoute: typeof AppProcurementsNewRoute
   AppRequestsRequestIdRoute: typeof AppRequestsRequestIdRouteWithChildren
   AppRequestsNewRoute: typeof AppRequestsNewRoute
@@ -572,10 +642,12 @@ const AppRouteChildren: AppRouteChildren = {
   AppAuditRoute: AppAuditRoute,
   AppReportsRoute: AppReportsRoute,
   AppIndexRoute: AppIndexRoute,
-  AppContributionsContributionIdRoute: AppContributionsContributionIdRoute,
+  AppContributionsContributionIdRoute:
+    AppContributionsContributionIdRouteWithChildren,
   AppContributionsNewRoute: AppContributionsNewRoute,
   AppCounterpartiesCounterpartyIdRoute: AppCounterpartiesCounterpartyIdRoute,
-  AppProcurementsProcurementIdRoute: AppProcurementsProcurementIdRoute,
+  AppProcurementsProcurementIdRoute:
+    AppProcurementsProcurementIdRouteWithChildren,
   AppProcurementsNewRoute: AppProcurementsNewRoute,
   AppRequestsRequestIdRoute: AppRequestsRequestIdRouteWithChildren,
   AppRequestsNewRoute: AppRequestsNewRoute,

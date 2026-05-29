@@ -125,6 +125,13 @@ export class RequestRepository {
     return this.prisma.request.update({ where: { id }, data: { status } });
   }
 
+  incrementLineReceived(lineId: string, quantity: number) {
+    return this.prisma.requestLine.update({
+      where: { id: lineId },
+      data: { receivedQuantity: { increment: quantity } },
+    });
+  }
+
   delete(id: string) {
     return this.prisma.request.delete({ where: { id } });
   }

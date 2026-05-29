@@ -14,6 +14,10 @@ import { DictionariesModule } from './modules/dictionaries/dictionaries.module';
 import { CounterpartiesModule } from './modules/counterparties/counterparties.module';
 import { RequestsModule } from './modules/requests/requests.module';
 import { FilesModule } from './modules/files/files.module';
+import { ContributionsModule } from './modules/contributions/contributions.module';
+import { ProcurementsModule } from './modules/procurements/procurements.module';
+import { WarehousesModule } from './modules/warehouses/warehouses.module';
+import { StockModule } from './modules/stock/stock.module';
 
 @Module({
   imports: [
@@ -32,6 +36,10 @@ import { FilesModule } from './modules/files/files.module';
     CounterpartiesModule,
     RequestsModule,
     FilesModule,
+    ContributionsModule,
+    ProcurementsModule,
+    WarehousesModule,
+    StockModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })

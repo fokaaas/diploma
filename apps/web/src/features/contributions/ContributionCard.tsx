@@ -1,8 +1,15 @@
-import { useNavigate } from '@tanstack/react-router'
+import { useRef } from 'react'
+import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useToast } from '../../context/toast-context'
-import { CONTRIBUTIONS } from '../../data/contributions'
+import { useAuth, sessionStore } from '../../lib/auth/session'
+import { ApiError } from '../../lib/api/client'
+import { deleteFile, downloadFile } from '../../lib/api/files'
+import {
+  deleteContribution,
+  uploadContributionFile,
+  type ContributionDetail,
+} from '../../lib/api/contributions'
 import { PROC_STATUS_BY_KEY } from '../../data/statuses'
-import { getContribution, getCounterparty, listProcurementsForContribution } from '../../data/queries'
 import { formatNumber } from '../../lib/format'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { Icon } from '../../components/ui/Icon'
@@ -10,47 +17,94 @@ import { Money } from '../../components/ui/Money'
 import { StatusBadge } from '../../components/ui/Badge'
 import { EmptyState } from '../../components/ui/EmptyState'
 
-export function ContributionCard({ id }: { id: string }) {
+const CAN_MANAGE: Record<string, boolean> = { admin: true, accountant: true }
+
+function formatDate(value: string): string {
+  return new Date(value).toLocaleDateString('uk-UA', { dateStyle: 'medium' })
+}
+
+export function ContributionCard({ detail }: { detail: ContributionDetail }) {
   const navigate = useNavigate()
+  const router = useRouter()
   const { showToast } = useToast()
-  const contribution = getContribution(id) ?? CONTRIBUTIONS[0]
-  const donor = getCounterparty(contribution.donor)
-  const linkedProcurements = listProcurementsForContribution(contribution.id)
-  const used = linkedProcurements.reduce((sum, p) => sum + p.amount, 0)
-  const remaining = Math.max(0, contribution.amount - used)
-  const usedPct = Math.min(100, (used / contribution.amount) * 100)
+  const { user } = useAuth()
+  const token = sessionStore.getAccessToken() ?? ''
+  const canManage = CAN_MANAGE[user?.role ?? ''] ?? false
+  const fileInput = useRef<HTMLInputElement>(null)
+
+  const used = detail.allocatedTotal
+  const remaining = detail.unspent
+  const usedPct = detail.amount > 0 ? Math.min(100, (used / detail.amount) * 100) : 0
+
+  const run = async (action: Promise<unknown>, success: string) => {
+    try {
+      await action
+      showToast(success)
+      await router.invalidate()
+    } catch (error) {
+      showToast(error instanceof ApiError ? error.message : 'Сталася помилка')
+    }
+  }
+
+  const handleDelete = () =>
+    run(deleteContribution(token, detail.id), 'Внесок видалено').then(() =>
+      navigate({ to: '/contributions' }),
+    )
+
+  const handleAddFiles = async (list: FileList | null) => {
+    if (!list || list.length === 0) return
+    try {
+      for (const file of Array.from(list)) {
+        await uploadContributionFile(token, detail.id, file)
+      }
+      showToast('Документ додано')
+      await router.invalidate()
+    } catch (error) {
+      showToast(error instanceof ApiError ? error.message : 'Не вдалося завантажити файл')
+    }
+  }
 
   return (
     <div className="page">
       <PageHeader
         breadcrumb={[
           { label: 'Внески', onClick: () => void navigate({ to: '/contributions' }) },
-          { label: contribution.id },
+          { label: detail.number },
         ]}
         title={
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 12 }}>
             <span className="mono" style={{ fontSize: 'var(--fs-2xl)' }}>
-              {contribution.id}
+              {detail.number}
             </span>
-            {contribution.form === 'monetary' ? (
+            {detail.form === 'monetary' ? (
               <span className="badge badge--success">грошовий</span>
             ) : (
               <span className="badge badge--violet">натуральний</span>
             )}
           </span>
         }
-        subtitle={`${contribution.date} · ${donor?.name ?? ''}`}
+        subtitle={`${formatDate(detail.date)} · ${detail.donorName}`}
         actions={
-          <>
-            <button className="btn" onClick={() => showToast('Документ завантажено')}>
-              <Icon name="download" size={15} />
-              Документ
-            </button>
-            <button className="btn" onClick={() => showToast('Редагування внеску незабаром')}>
-              <Icon name="edit" size={15} />
-              Редагувати
-            </button>
-          </>
+          canManage ? (
+            <>
+              <button
+                className="btn"
+                onClick={() =>
+                  void navigate({
+                    to: '/contributions/$contributionId/edit',
+                    params: { contributionId: detail.id },
+                  })
+                }
+              >
+                <Icon name="edit" size={15} />
+                Редагувати
+              </button>
+              <button className="btn btn--danger" onClick={() => void handleDelete()}>
+                <Icon name="trash" size={15} />
+                Видалити
+              </button>
+            </>
+          ) : null
         }
       />
 
@@ -65,7 +119,7 @@ export function ContributionCard({ id }: { id: string }) {
                 <div className="stat" style={{ padding: 14 }}>
                   <div className="stat__label">Сума надходження</div>
                   <div className="stat__value" style={{ fontSize: 22 }}>
-                    {formatNumber(contribution.amount)} ₴
+                    {formatNumber(detail.amount)} ₴
                   </div>
                 </div>
                 <div className="stat" style={{ padding: 14 }}>
@@ -73,7 +127,7 @@ export function ContributionCard({ id }: { id: string }) {
                   <div className="stat__value" style={{ fontSize: 22 }}>
                     {formatNumber(used)} ₴
                   </div>
-                  <div className="stat__sub">{linkedProcurements.length} закупівлі</div>
+                  <div className="stat__sub">{detail.linkedProcurements.length} закупівлі</div>
                 </div>
                 <div className="stat" style={{ padding: 14 }}>
                   <div className="stat__label">Залишок</div>
@@ -97,7 +151,7 @@ export function ContributionCard({ id }: { id: string }) {
           <div className="card">
             <div className="card__header">
               <h3 className="card__title">Фінансовані закупівлі</h3>
-              <span className="muted text-sm">{linkedProcurements.length}</span>
+              <span className="muted text-sm">{detail.linkedProcurements.length}</span>
             </div>
             <table className="data">
               <thead>
@@ -110,16 +164,11 @@ export function ContributionCard({ id }: { id: string }) {
                 </tr>
               </thead>
               <tbody>
-                {linkedProcurements.map((p) => (
-                  <tr
-                    key={p.id}
-                    onClick={() =>
-                      void navigate({ to: '/procurements/$procurementId', params: { procurementId: p.id } })
-                    }
-                  >
-                    <td className="col-id">{p.id}</td>
-                    <td>{getCounterparty(p.supplier)?.name}</td>
-                    <td>{p.lines}</td>
+                {detail.linkedProcurements.map((p) => (
+                  <tr key={p.id} style={{ cursor: 'default' }}>
+                    <td className="col-id">{p.number}</td>
+                    <td>{p.supplierName}</td>
+                    <td>{p.lineCount}</td>
                     <td>
                       <StatusBadge status={p.status} statuses={PROC_STATUS_BY_KEY} />
                     </td>
@@ -128,7 +177,7 @@ export function ContributionCard({ id }: { id: string }) {
                     </td>
                   </tr>
                 ))}
-                {linkedProcurements.length === 0 && (
+                {detail.linkedProcurements.length === 0 && (
                   <tr style={{ cursor: 'default' }}>
                     <td colSpan={5}>
                       <EmptyState
@@ -152,27 +201,28 @@ export function ContributionCard({ id }: { id: string }) {
               <dl className="kv">
                 <dt>Донор</dt>
                 <dd>
-                  <strong>{donor?.name}</strong>
-                  <div className="text-xs muted">{donor?.form}</div>
+                  <strong>{detail.donorName}</strong>
+                  {detail.donorNote && <div className="text-xs muted">{detail.donorNote}</div>}
                 </dd>
                 <dt>Дата</dt>
-                <dd>{contribution.date}</dd>
+                <dd>{formatDate(detail.date)}</dd>
                 <dt>Форма</dt>
-                <dd>{contribution.form === 'monetary' ? 'Грошовий' : 'Натуральний (товари/послуги)'}</dd>
-                {contribution.form === 'in-kind' && (
+                <dd>{detail.form === 'monetary' ? 'Грошовий' : 'Натуральний (товари/послуги)'}</dd>
+                {detail.form === 'in-kind' && (
                   <>
                     <dt>Позиція</dt>
                     <dd>
-                      {contribution.itemName} · {contribution.itemQty} шт.
+                      {detail.itemName ?? '—'}
+                      {detail.itemQuantity ? ` · ${detail.itemQuantity} шт.` : ''}
                     </dd>
                   </>
                 )}
                 <dt>Призначення</dt>
-                <dd>{contribution.purpose}</dd>
+                <dd>{detail.purpose ?? '—'}</dd>
                 <dt>Документ-основа</dt>
-                <dd>{contribution.doc}</dd>
+                <dd>{detail.baseDocumentLabel ?? '—'}</dd>
                 <dt>Зареєстрував</dt>
-                <dd>Марія Бондарчук</dd>
+                <dd>{detail.registeredByName}</dd>
               </dl>
             </div>
           </div>
@@ -180,26 +230,68 @@ export function ContributionCard({ id }: { id: string }) {
           <div className="card">
             <div className="card__header">
               <h3 className="card__title">Документи</h3>
+              <span className="muted text-sm">{detail.files.length}</span>
             </div>
             <div className="card__body">
-              {[contribution.doc, 'Договір_пожертви.pdf', 'Сканкопія платіжки.pdf'].map((f, i) => (
+              {detail.files.map((f) => (
                 <div
-                  key={i}
+                  key={f.id}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: 10,
                     padding: '7px 0',
-                    borderBottom: i < 2 ? '1px solid var(--border-soft)' : 0,
+                    borderBottom: '1px solid var(--border-soft)',
                   }}
                 >
                   <Icon name="paperclip" size={15} color="var(--text-muted)" />
-                  <span className="text-sm" style={{ flex: 1 }}>
-                    {f}
+                  <span className="text-sm" style={{ flex: 1, wordBreak: 'break-all' }}>
+                    {f.originalName}
                   </span>
-                  <Icon name="download" size={14} color="var(--text-muted)" />
+                  <button
+                    className="btn btn--icon btn--ghost"
+                    aria-label="Завантажити"
+                    onClick={() =>
+                      void downloadFile(token, f.id, f.originalName).catch(() =>
+                        showToast('Не вдалося завантажити'),
+                      )
+                    }
+                  >
+                    <Icon name="download" size={14} />
+                  </button>
+                  {canManage && (
+                    <button
+                      className="btn btn--icon btn--ghost btn--danger"
+                      aria-label="Видалити"
+                      onClick={() => void run(deleteFile(token, f.id), 'Документ видалено')}
+                    >
+                      <Icon name="trash" size={14} />
+                    </button>
+                  )}
                 </div>
               ))}
+              {detail.files.length === 0 && (
+                <div className="muted text-sm mb-2">Без документів</div>
+              )}
+              {canManage && (
+                <>
+                  <input
+                    ref={fileInput}
+                    type="file"
+                    multiple
+                    style={{ display: 'none' }}
+                    onChange={(e) => void handleAddFiles(e.target.files)}
+                  />
+                  <button
+                    className="btn btn--sm w-full"
+                    style={{ marginTop: 10 }}
+                    onClick={() => fileInput.current?.click()}
+                  >
+                    <Icon name="upload" size={14} />
+                    Додати документ
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

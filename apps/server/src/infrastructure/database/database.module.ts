@@ -12,6 +12,13 @@ import { CounterpartyRepository } from './repos/counterparty.repo';
 import { RequestRepository } from './repos/request.repo';
 import { FileRepository } from './repos/file.repo';
 import { AuditLogRepository } from './repos/audit-log.repo';
+import { ContributionRepository } from './repos/contribution.repo';
+import { ProcurementRepository } from './repos/procurement.repo';
+import { WarehouseRepository } from './repos/warehouse.repo';
+import { StockLevelRepository } from './repos/stock-level.repo';
+import { StockMovementRepository } from './repos/stock-movement.repo';
+import { GoodsReceiptRepository } from './repos/goods-receipt.repo';
+import { IssuanceRepository } from './repos/issuance.repo';
 
 const repositories = [
   PlatformAdminRepository,
@@ -26,6 +33,13 @@ const repositories = [
   RequestRepository,
   FileRepository,
   AuditLogRepository,
+  ContributionRepository,
+  ProcurementRepository,
+  WarehouseRepository,
+  StockLevelRepository,
+  StockMovementRepository,
+  GoodsReceiptRepository,
+  IssuanceRepository,
 ];
 
 @Global()

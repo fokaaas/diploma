@@ -7,11 +7,13 @@ import type { FileResponse } from './responses/file.response';
 
 export interface StoreFileParams {
   foundationId: string;
-  requestId: string;
   uploadedById: string;
   originalName: string;
   mimeType: string;
   data: Buffer;
+  requestId?: string;
+  contributionId?: string;
+  procurementId?: string;
 }
 
 export interface DownloadableFile {
@@ -26,6 +28,18 @@ function kindFromMime(mime: string): FileKind {
   if (mime.startsWith('image/')) return FileKind.PHOTO;
   if (mime.startsWith('audio/')) return FileKind.VOICE;
   return FileKind.DOCUMENT;
+}
+
+function resolveTarget(params: StoreFileParams): {
+  scope: string;
+  ownerId: string;
+} {
+  if (params.requestId) return { scope: 'requests', ownerId: params.requestId };
+  if (params.contributionId)
+    return { scope: 'contributions', ownerId: params.contributionId };
+  if (params.procurementId)
+    return { scope: 'procurements', ownerId: params.procurementId };
+  return { scope: 'misc', ownerId: 'misc' };
 }
 
 export function toFileResponse(file: FileRecord): FileResponse {
@@ -47,9 +61,11 @@ export class FilesService {
   ) {}
 
   async store(params: StoreFileParams): Promise<FileResponse> {
+    const target = resolveTarget(params);
     const storagePath = await this.storage.save(
       params.foundationId,
-      params.requestId,
+      target.scope,
+      target.ownerId,
       params.originalName,
       params.data,
     );
@@ -61,7 +77,9 @@ export class FilesService {
       sizeBytes: params.data.length,
       kind: kindFromMime(params.mimeType),
       uploadedById: params.uploadedById,
-      requestId: params.requestId,
+      requestId: params.requestId ?? null,
+      contributionId: params.contributionId ?? null,
+      procurementId: params.procurementId ?? null,
     });
     return toFileResponse(file);
   }
@@ -83,6 +101,20 @@ export class FilesService {
 
   async purgeForRequest(requestId: string): Promise<void> {
     const files = await this.files.findManyByRequest(requestId);
+    await Promise.all(
+      files.map((file) => this.storage.remove(file.storagePath)),
+    );
+  }
+
+  async purgeForContribution(contributionId: string): Promise<void> {
+    const files = await this.files.findManyByContribution(contributionId);
+    await Promise.all(
+      files.map((file) => this.storage.remove(file.storagePath)),
+    );
+  }
+
+  async purgeForProcurement(procurementId: string): Promise<void> {
+    const files = await this.files.findManyByProcurement(procurementId);
     await Promise.all(
       files.map((file) => this.storage.remove(file.storagePath)),
     );

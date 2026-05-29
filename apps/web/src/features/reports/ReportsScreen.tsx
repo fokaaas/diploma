@@ -93,7 +93,7 @@ export function ReportsScreen() {
           </div>
           <div className="card__body">
             <p className="muted" style={{ marginTop: 0 }}>
-              Сформувати зведений публічний звіт фонду за період для розміщення на сайті прозорості.
+              Сформувати зведений публічний звіт фонду за період для розміщення на сайті.
             </p>
             <div className="form-row">
               <div className="field">
