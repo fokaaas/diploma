@@ -16,6 +16,7 @@ import { UserStatus } from '../../generated/prisma/enums';
 import { UserRepository } from '../../infrastructure/database/repos/user.repo';
 import { InvitationRepository } from '../../infrastructure/database/repos/invitation.repo';
 import type { InviteUserDto } from './body/invite-user.dto';
+import type { ChangeRoleDto } from './body/change-role.dto';
 import type { UserResponse } from './responses/user.response';
 import type { InvitationResponse } from './responses/invitation.response';
 
@@ -99,6 +100,59 @@ export class UsersService {
       blocked ? UserStatus.BLOCKED : UserStatus.ACTIVE,
     );
     return this.toUser(updated);
+  }
+
+  async changeRole(
+    actor: UserPrincipal,
+    userId: string,
+    dto: ChangeRoleDto,
+  ): Promise<UserResponse> {
+    if (userId === actor.sub) {
+      throw new BadRequestException('Не можна змінити власну роль');
+    }
+    const target = await this.users.findById(userId);
+    if (!target || target.foundationId !== actor.foundationId) {
+      throw new NotFoundException('Користувача не знайдено');
+    }
+    const updated = await this.users.setRole(userId, dto.role);
+    return this.toUser(updated);
+  }
+
+  async resendInvitation(
+    actor: UserPrincipal,
+    userId: string,
+  ): Promise<InvitationResponse> {
+    const target = await this.users.findById(userId);
+    if (!target || target.foundationId !== actor.foundationId) {
+      throw new NotFoundException('Користувача не знайдено');
+    }
+    if (target.status !== UserStatus.INVITED) {
+      throw new BadRequestException(
+        'Повторно надіслати запрошення можна лише запрошеному користувачу',
+      );
+    }
+    await this.invitations.revokePendingForEmail(
+      actor.foundationId,
+      target.email,
+    );
+    const token = generateToken();
+    const invitation = await this.invitations.create({
+      foundationId: actor.foundationId,
+      email: target.email,
+      role: target.role,
+      token,
+      expiresAt: new Date(Date.now() + INVITE_TTL_MS),
+      invitedById: actor.sub,
+    });
+    await this.email.sendInvitation(target.email, {
+      recipientName: target.fullName,
+      foundationName: target.foundation.name,
+      roleLabel: ROLE_LABELS[target.role],
+      inviterName: target.foundation.name,
+      email: target.email,
+      acceptUrl: `${this.app.webAppUrl}/invite?token=${token}`,
+    });
+    return this.toInvitation(invitation);
   }
 
   private toUser(user: UserRecord): UserResponse {

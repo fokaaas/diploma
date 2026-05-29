@@ -23,6 +23,16 @@ interface CreateFoundationInput {
   };
 }
 
+interface UpdateFoundationInput {
+  name: string;
+  shortName: string;
+  legalName: string;
+  edrpou: string;
+  taxId: string | null;
+  address: string | null;
+  website: string | null;
+}
+
 @Injectable()
 export class FoundationRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -55,6 +65,10 @@ export class FoundationRepository {
 
   findById(id: string) {
     return this.prisma.foundation.findUnique({ where: { id } });
+  }
+
+  update(id: string, data: UpdateFoundationInput) {
+    return this.prisma.foundation.update({ where: { id }, data });
   }
 
   listSummaries() {

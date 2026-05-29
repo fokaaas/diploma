@@ -20,6 +20,7 @@ import type { UserPrincipal } from '../../common/data/authenticated-principal';
 import { Role } from '../../generated/prisma/enums';
 import { UsersService } from './users.service';
 import { InviteUserDto } from './body/invite-user.dto';
+import { ChangeRoleDto } from './body/change-role.dto';
 import { UserResponse } from './responses/user.response';
 import { InvitationResponse } from './responses/invitation.response';
 
@@ -68,5 +69,26 @@ export class UsersController {
     @Param('id') id: string,
   ): Promise<UserResponse> {
     return this.users.setBlocked(actor, id, false);
+  }
+
+  @Patch(':id/role')
+  @ApiOperation({ summary: 'Змінити роль користувача' })
+  @ApiOkResponse({ type: UserResponse })
+  changeRole(
+    @CurrentFoundationUser() actor: UserPrincipal,
+    @Param('id') id: string,
+    @Body() dto: ChangeRoleDto,
+  ): Promise<UserResponse> {
+    return this.users.changeRole(actor, id, dto);
+  }
+
+  @Post(':id/resend-invitation')
+  @ApiOperation({ summary: 'Повторно надіслати запрошення' })
+  @ApiOkResponse({ type: InvitationResponse })
+  resendInvitation(
+    @CurrentFoundationUser() actor: UserPrincipal,
+    @Param('id') id: string,
+  ): Promise<InvitationResponse> {
+    return this.users.resendInvitation(actor, id);
   }
 }

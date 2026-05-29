@@ -54,6 +54,10 @@ export class UserRepository {
     return this.prisma.user.update({ where: { id }, data: { status } });
   }
 
+  setRole(id: string, role: Role) {
+    return this.prisma.user.update({ where: { id }, data: { role } });
+  }
+
   touchLastSeen(id: string) {
     return this.prisma.user.update({
       where: { id },

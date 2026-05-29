@@ -10,6 +10,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { PlatformModule } from './modules/platform/platform.module';
 import { FoundationsModule } from './modules/foundations/foundations.module';
 import { UsersModule } from './modules/users/users.module';
+import { DictionariesModule } from './modules/dictionaries/dictionaries.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UsersModule } from './modules/users/users.module';
     PlatformModule,
     FoundationsModule,
     UsersModule,
+    DictionariesModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })

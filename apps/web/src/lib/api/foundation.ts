@@ -12,6 +12,26 @@ export interface FoundationProfile {
   createdAt: string
 }
 
+export interface UpdateFoundationInput {
+  legalName: string
+  shortName: string
+  edrpou: string
+  taxId?: string
+  address?: string
+  website?: string
+}
+
 export function getFoundation(token: string): Promise<FoundationProfile> {
   return apiFetch<FoundationProfile>('/foundation', { token })
+}
+
+export function updateFoundation(
+  token: string,
+  input: UpdateFoundationInput,
+): Promise<FoundationProfile> {
+  return apiFetch<FoundationProfile>('/foundation', {
+    method: 'PATCH',
+    body: input,
+    token,
+  })
 }

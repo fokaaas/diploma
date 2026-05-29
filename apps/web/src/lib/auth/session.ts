@@ -45,6 +45,12 @@ export const sessionStore = {
     persist()
     emit()
   },
+  setFoundationName(name: string): void {
+    if (!session) return
+    session = { ...session, foundationName: name }
+    persist()
+    emit()
+  },
   clear(): void {
     session = null
     persist()

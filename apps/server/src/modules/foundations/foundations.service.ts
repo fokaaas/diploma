@@ -7,6 +7,7 @@ import { EmailService } from '../../infrastructure/email/email.service';
 import { Role } from '../../generated/prisma/enums';
 import { FoundationRepository } from '../../infrastructure/database/repos/foundation.repo';
 import type { CreateFoundationDto } from './body/create-foundation.dto';
+import type { UpdateFoundationDto } from './body/update-foundation.dto';
 import type { FoundationResponse } from './responses/foundation.response';
 import type { FoundationSummaryResponse } from './responses/foundation-summary.response';
 
@@ -57,6 +58,22 @@ export class FoundationsService {
     if (!foundation) {
       throw new NotFoundException('Фонд не знайдено');
     }
+    return this.toResponse(foundation);
+  }
+
+  async update(
+    foundationId: string,
+    dto: UpdateFoundationDto,
+  ): Promise<FoundationResponse> {
+    const foundation = await this.foundations.update(foundationId, {
+      name: dto.shortName,
+      shortName: dto.shortName,
+      legalName: dto.legalName,
+      edrpou: dto.edrpou,
+      taxId: dto.taxId ?? null,
+      address: dto.address ?? null,
+      website: dto.website ?? null,
+    });
     return this.toResponse(foundation);
   }
 

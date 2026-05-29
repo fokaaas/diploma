@@ -6,6 +6,8 @@ import { InvitationRepository } from './repos/invitation.repo';
 import { FoundationRepository } from './repos/foundation.repo';
 import { RefreshTokenRepository } from './repos/refresh-token.repo';
 import { PasswordResetRepository } from './repos/password-reset.repo';
+import { CategoryRepository } from './repos/category.repo';
+import { ItemRepository } from './repos/item.repo';
 
 const repositories = [
   PlatformAdminRepository,
@@ -14,6 +16,8 @@ const repositories = [
   FoundationRepository,
   RefreshTokenRepository,
   PasswordResetRepository,
+  CategoryRepository,
+  ItemRepository,
 ];
 
 @Global()

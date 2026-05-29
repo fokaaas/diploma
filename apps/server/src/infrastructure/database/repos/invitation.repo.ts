@@ -33,4 +33,11 @@ export class InvitationRepository {
       data: { status: InvitationStatus.ACCEPTED, acceptedAt: new Date() },
     });
   }
+
+  revokePendingForEmail(foundationId: string, email: string) {
+    return this.prisma.invitation.updateMany({
+      where: { foundationId, email, status: InvitationStatus.PENDING },
+      data: { status: InvitationStatus.REVOKED },
+    });
+  }
 }
