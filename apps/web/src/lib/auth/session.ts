@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'react'
 import type { Role, User } from '../../types/domain'
 import type { FoundationSession } from '../api/auth'
 import { logout as apiLogout } from '../api/auth'
+import { registerAuthHooks } from '../api/client'
 import { initialsOf } from '../initials'
 
 const STORAGE_KEY = 'fund-platform.session'
@@ -73,6 +74,23 @@ export const sessionStore = {
     return session !== null
   },
 }
+
+
+registerAuthHooks({
+  getRefreshToken: () => session?.refreshToken ?? null,
+  onTokens: (accessToken, refreshToken) => {
+    if (!session) return
+    session = { ...session, accessToken, refreshToken }
+    persist()
+    emit()
+  },
+  onAuthFailure: () => {
+    sessionStore.clear()
+    if (window.location.pathname !== '/login') {
+      window.location.assign('/login')
+    }
+  },
+})
 
 async function performLogout(): Promise<void> {
   const current = session
