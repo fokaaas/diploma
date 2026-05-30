@@ -3,6 +3,7 @@ import { registerAs } from '@nestjs/config';
 export const appConfig = registerAs('app', () => ({
   port: Number(process.env.PORT ?? 3000),
   webAppUrl: process.env.WEB_APP_URL ?? 'http://localhost:5173',
+  name: process.env.TOTP_ISSUER ?? 'Фонд-платформа',
 }));
 
 export const jwtConfig = registerAs('jwt', () => ({

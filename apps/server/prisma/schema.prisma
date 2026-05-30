@@ -108,11 +108,13 @@ enum FileKind {
 }
 
 model PlatformAdmin {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  totpSecret    String?
+  totpEnabledAt DateTime?
+  createdAt     DateTime  @default(now())
 
   refreshTokens RefreshToken[]
 }
@@ -152,6 +154,8 @@ model User {
   fullName     String
   email        String     @unique
   passwordHash String?
+  totpSecret    String?
+  totpEnabledAt DateTime?
   role         Role
   status       UserStatus @default(INVITED)
   lastSeenAt   DateTime?

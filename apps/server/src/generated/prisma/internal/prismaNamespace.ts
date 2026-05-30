@@ -2322,6 +2322,8 @@ export const PlatformAdminScalarFieldEnum = {
   name: 'name',
   email: 'email',
   passwordHash: 'passwordHash',
+  totpSecret: 'totpSecret',
+  totpEnabledAt: 'totpEnabledAt',
   createdAt: 'createdAt'
 } as const
 
@@ -2350,6 +2352,8 @@ export const UserScalarFieldEnum = {
   fullName: 'fullName',
   email: 'email',
   passwordHash: 'passwordHash',
+  totpSecret: 'totpSecret',
+  totpEnabledAt: 'totpEnabledAt',
   role: 'role',
   status: 'status',
   lastSeenAt: 'lastSeenAt',

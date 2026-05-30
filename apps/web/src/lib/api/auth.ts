@@ -39,6 +39,14 @@ export interface FoundationSession {
   foundationName: string
 }
 
+export interface TwoFactorChallenge {
+  stage: 'SETUP' | 'VERIFY'
+  ticket: string
+  secret?: string
+  otpauthUri?: string
+  qrDataUrl?: string
+}
+
 function toRole(role: BackendRole): Role {
   return role.toLowerCase() as Role
 }
@@ -65,10 +73,24 @@ function toSession(response: AuthSessionResponse): FoundationSession {
   }
 }
 
-export function login(email: string, password: string): Promise<FoundationSession> {
-  return apiFetch<AuthSessionResponse>('/auth/login', {
+export function login(email: string, password: string): Promise<TwoFactorChallenge> {
+  return apiFetch<TwoFactorChallenge>('/auth/login', {
     method: 'POST',
     body: { email, password },
+  })
+}
+
+export function setupTwoFactor(ticket: string, code: string): Promise<FoundationSession> {
+  return apiFetch<AuthSessionResponse>('/auth/2fa/setup', {
+    method: 'POST',
+    body: { ticket, code },
+  }).then(toSession)
+}
+
+export function verifyTwoFactor(ticket: string, code: string): Promise<FoundationSession> {
+  return apiFetch<AuthSessionResponse>('/auth/2fa/verify', {
+    method: 'POST',
+    body: { ticket, code },
   }).then(toSession)
 }
 
@@ -83,11 +105,11 @@ export function getInvitation(token: string): Promise<InvitationInfo> {
   }))
 }
 
-export function acceptInvitation(token: string, password: string): Promise<FoundationSession> {
-  return apiFetch<AuthSessionResponse>(`/auth/invitations/${encodeURIComponent(token)}/accept`, {
+export function acceptInvitation(token: string, password: string): Promise<TwoFactorChallenge> {
+  return apiFetch<TwoFactorChallenge>(`/auth/invitations/${encodeURIComponent(token)}/accept`, {
     method: 'POST',
     body: { password },
-  }).then(toSession)
+  })
 }
 
 export function forgotPassword(email: string): Promise<void> {

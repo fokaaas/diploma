@@ -29,6 +29,8 @@ export type PlatformAdminMinAggregateOutputType = {
   name: string | null
   email: string | null
   passwordHash: string | null
+  totpSecret: string | null
+  totpEnabledAt: Date | null
   createdAt: Date | null
 }
 
@@ -37,6 +39,8 @@ export type PlatformAdminMaxAggregateOutputType = {
   name: string | null
   email: string | null
   passwordHash: string | null
+  totpSecret: string | null
+  totpEnabledAt: Date | null
   createdAt: Date | null
 }
 
@@ -45,6 +49,8 @@ export type PlatformAdminCountAggregateOutputType = {
   name: number
   email: number
   passwordHash: number
+  totpSecret: number
+  totpEnabledAt: number
   createdAt: number
   _all: number
 }
@@ -55,6 +61,8 @@ export type PlatformAdminMinAggregateInputType = {
   name?: true
   email?: true
   passwordHash?: true
+  totpSecret?: true
+  totpEnabledAt?: true
   createdAt?: true
 }
 
@@ -63,6 +71,8 @@ export type PlatformAdminMaxAggregateInputType = {
   name?: true
   email?: true
   passwordHash?: true
+  totpSecret?: true
+  totpEnabledAt?: true
   createdAt?: true
 }
 
@@ -71,6 +81,8 @@ export type PlatformAdminCountAggregateInputType = {
   name?: true
   email?: true
   passwordHash?: true
+  totpSecret?: true
+  totpEnabledAt?: true
   createdAt?: true
   _all?: true
 }
@@ -152,6 +164,8 @@ export type PlatformAdminGroupByOutputType = {
   name: string
   email: string
   passwordHash: string
+  totpSecret: string | null
+  totpEnabledAt: Date | null
   createdAt: Date
   _count: PlatformAdminCountAggregateOutputType | null
   _min: PlatformAdminMinAggregateOutputType | null
@@ -181,6 +195,8 @@ export type PlatformAdminWhereInput = {
   name?: Prisma.StringFilter<"PlatformAdmin"> | string
   email?: Prisma.StringFilter<"PlatformAdmin"> | string
   passwordHash?: Prisma.StringFilter<"PlatformAdmin"> | string
+  totpSecret?: Prisma.StringNullableFilter<"PlatformAdmin"> | string | null
+  totpEnabledAt?: Prisma.DateTimeNullableFilter<"PlatformAdmin"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"PlatformAdmin"> | Date | string
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
 }
@@ -190,6 +206,8 @@ export type PlatformAdminOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  totpSecret?: Prisma.SortOrderInput | Prisma.SortOrder
+  totpEnabledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   refreshTokens?: Prisma.RefreshTokenOrderByRelationAggregateInput
 }
@@ -202,6 +220,8 @@ export type PlatformAdminWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.PlatformAdminWhereInput | Prisma.PlatformAdminWhereInput[]
   name?: Prisma.StringFilter<"PlatformAdmin"> | string
   passwordHash?: Prisma.StringFilter<"PlatformAdmin"> | string
+  totpSecret?: Prisma.StringNullableFilter<"PlatformAdmin"> | string | null
+  totpEnabledAt?: Prisma.DateTimeNullableFilter<"PlatformAdmin"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"PlatformAdmin"> | Date | string
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
 }, "id" | "email">
@@ -211,6 +231,8 @@ export type PlatformAdminOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  totpSecret?: Prisma.SortOrderInput | Prisma.SortOrder
+  totpEnabledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.PlatformAdminCountOrderByAggregateInput
   _max?: Prisma.PlatformAdminMaxOrderByAggregateInput
@@ -225,6 +247,8 @@ export type PlatformAdminScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"PlatformAdmin"> | string
   email?: Prisma.StringWithAggregatesFilter<"PlatformAdmin"> | string
   passwordHash?: Prisma.StringWithAggregatesFilter<"PlatformAdmin"> | string
+  totpSecret?: Prisma.StringNullableWithAggregatesFilter<"PlatformAdmin"> | string | null
+  totpEnabledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PlatformAdmin"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PlatformAdmin"> | Date | string
 }
 
@@ -233,6 +257,8 @@ export type PlatformAdminCreateInput = {
   name: string
   email: string
   passwordHash: string
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   createdAt?: Date | string
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutPlatformAdminInput
 }
@@ -242,6 +268,8 @@ export type PlatformAdminUncheckedCreateInput = {
   name: string
   email: string
   passwordHash: string
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   createdAt?: Date | string
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutPlatformAdminInput
 }
@@ -251,6 +279,8 @@ export type PlatformAdminUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutPlatformAdminNestedInput
 }
@@ -260,6 +290,8 @@ export type PlatformAdminUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutPlatformAdminNestedInput
 }
@@ -269,6 +301,8 @@ export type PlatformAdminCreateManyInput = {
   name: string
   email: string
   passwordHash: string
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -277,6 +311,8 @@ export type PlatformAdminUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -285,6 +321,8 @@ export type PlatformAdminUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -293,6 +331,8 @@ export type PlatformAdminCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  totpSecret?: Prisma.SortOrder
+  totpEnabledAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -301,6 +341,8 @@ export type PlatformAdminMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  totpSecret?: Prisma.SortOrder
+  totpEnabledAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -309,6 +351,8 @@ export type PlatformAdminMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  totpSecret?: Prisma.SortOrder
+  totpEnabledAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -319,6 +363,14 @@ export type PlatformAdminNullableScalarRelationFilter = {
 
 export type StringFieldUpdateOperationsInput = {
   set?: string
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -346,6 +398,8 @@ export type PlatformAdminCreateWithoutRefreshTokensInput = {
   name: string
   email: string
   passwordHash: string
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -354,6 +408,8 @@ export type PlatformAdminUncheckedCreateWithoutRefreshTokensInput = {
   name: string
   email: string
   passwordHash: string
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -378,6 +434,8 @@ export type PlatformAdminUpdateWithoutRefreshTokensInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -386,6 +444,8 @@ export type PlatformAdminUncheckedUpdateWithoutRefreshTokensInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -425,6 +485,8 @@ export type PlatformAdminSelect<ExtArgs extends runtime.Types.Extensions.Interna
   name?: boolean
   email?: boolean
   passwordHash?: boolean
+  totpSecret?: boolean
+  totpEnabledAt?: boolean
   createdAt?: boolean
   refreshTokens?: boolean | Prisma.PlatformAdmin$refreshTokensArgs<ExtArgs>
   _count?: boolean | Prisma.PlatformAdminCountOutputTypeDefaultArgs<ExtArgs>
@@ -435,6 +497,8 @@ export type PlatformAdminSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   name?: boolean
   email?: boolean
   passwordHash?: boolean
+  totpSecret?: boolean
+  totpEnabledAt?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["platformAdmin"]>
 
@@ -443,6 +507,8 @@ export type PlatformAdminSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   name?: boolean
   email?: boolean
   passwordHash?: boolean
+  totpSecret?: boolean
+  totpEnabledAt?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["platformAdmin"]>
 
@@ -451,10 +517,12 @@ export type PlatformAdminSelectScalar = {
   name?: boolean
   email?: boolean
   passwordHash?: boolean
+  totpSecret?: boolean
+  totpEnabledAt?: boolean
   createdAt?: boolean
 }
 
-export type PlatformAdminOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "createdAt", ExtArgs["result"]["platformAdmin"]>
+export type PlatformAdminOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "totpSecret" | "totpEnabledAt" | "createdAt", ExtArgs["result"]["platformAdmin"]>
 export type PlatformAdminInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   refreshTokens?: boolean | Prisma.PlatformAdmin$refreshTokensArgs<ExtArgs>
   _count?: boolean | Prisma.PlatformAdminCountOutputTypeDefaultArgs<ExtArgs>
@@ -472,6 +540,8 @@ export type $PlatformAdminPayload<ExtArgs extends runtime.Types.Extensions.Inter
     name: string
     email: string
     passwordHash: string
+    totpSecret: string | null
+    totpEnabledAt: Date | null
     createdAt: Date
   }, ExtArgs["result"]["platformAdmin"]>
   composites: {}
@@ -901,6 +971,8 @@ export interface PlatformAdminFieldRefs {
   readonly name: Prisma.FieldRef<"PlatformAdmin", 'String'>
   readonly email: Prisma.FieldRef<"PlatformAdmin", 'String'>
   readonly passwordHash: Prisma.FieldRef<"PlatformAdmin", 'String'>
+  readonly totpSecret: Prisma.FieldRef<"PlatformAdmin", 'String'>
+  readonly totpEnabledAt: Prisma.FieldRef<"PlatformAdmin", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"PlatformAdmin", 'DateTime'>
 }
     

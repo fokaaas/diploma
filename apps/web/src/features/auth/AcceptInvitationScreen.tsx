@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { acceptInvitation, getInvitation, type InvitationInfo } from '../../lib/api/auth'
+import {
+  acceptInvitation,
+  getInvitation,
+  setupTwoFactor,
+  type InvitationInfo,
+  type TwoFactorChallenge,
+} from '../../lib/api/auth'
 import { sessionStore } from '../../lib/auth/session'
 import { ApiError } from '../../lib/api/client'
 import { ROLE_LABELS } from '../../data/users'
 import { Icon } from '../../components/ui/Icon'
 import { AuthSide } from './AuthSide'
+import { TwoFactorPanel } from './TwoFactorPanel'
 
 export function AcceptInvitationScreen({ token }: { token: string }) {
   const navigate = useNavigate()
@@ -15,6 +22,7 @@ export function AcceptInvitationScreen({ token }: { token: string }) {
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [challenge, setChallenge] = useState<TwoFactorChallenge | null>(null)
 
   useEffect(() => {
     let active = true
@@ -39,14 +47,43 @@ export function AcceptInvitationScreen({ token }: { token: string }) {
     }
     setSubmitting(true)
     try {
-      const session = await acceptInvitation(token, password)
-      sessionStore.set(session)
-      void navigate({ to: '/' })
+      setChallenge(await acceptInvitation(token, password))
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Не вдалося активувати акаунт')
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const handleTwoFactor = async (code: string) => {
+    if (!challenge) return
+    setError(null)
+    setSubmitting(true)
+    try {
+      const session = await setupTwoFactor(challenge.ticket, code)
+      sessionStore.set(session)
+      void navigate({ to: '/' })
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Не вдалося підтвердити код')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (challenge) {
+    return (
+      <div className="auth-wrap">
+        <AuthSide />
+        <div className="auth-form-side">
+          <TwoFactorPanel
+            challenge={challenge}
+            submitting={submitting}
+            error={error}
+            onSubmit={(code) => void handleTwoFactor(code)}
+          />
+        </div>
+      </div>
+    )
   }
 
   if (loading) {

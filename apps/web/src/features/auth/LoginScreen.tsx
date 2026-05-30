@@ -1,10 +1,16 @@
 import { useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { login as apiLogin } from '../../lib/api/auth'
+import {
+  login as apiLogin,
+  setupTwoFactor,
+  verifyTwoFactor,
+  type TwoFactorChallenge,
+} from '../../lib/api/auth'
 import { sessionStore } from '../../lib/auth/session'
 import { ApiError } from '../../lib/api/client'
 import { Icon } from '../../components/ui/Icon'
 import { AuthSide } from './AuthSide'
+import { TwoFactorPanel } from './TwoFactorPanel'
 
 export function LoginScreen() {
   const navigate = useNavigate()
@@ -13,19 +19,52 @@ export function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [challenge, setChallenge] = useState<TwoFactorChallenge | null>(null)
 
   const handleSubmit = async () => {
     setError(null)
     setSubmitting(true)
     try {
-      const session = await apiLogin(email, password)
-      sessionStore.set(session)
-      void navigate({ to: '/' })
+      setChallenge(await apiLogin(email, password))
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Не вдалося увійти')
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const handleTwoFactor = async (code: string) => {
+    if (!challenge) return
+    setError(null)
+    setSubmitting(true)
+    try {
+      const session =
+        challenge.stage === 'SETUP'
+          ? await setupTwoFactor(challenge.ticket, code)
+          : await verifyTwoFactor(challenge.ticket, code)
+      sessionStore.set(session)
+      void navigate({ to: '/' })
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Не вдалося підтвердити код')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (challenge) {
+    return (
+      <div className="auth-wrap">
+        <AuthSide />
+        <div className="auth-form-side">
+          <TwoFactorPanel
+            challenge={challenge}
+            submitting={submitting}
+            error={error}
+            onSubmit={(code) => void handleTwoFactor(code)}
+          />
+        </div>
+      </div>
+    )
   }
 
   return (

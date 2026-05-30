@@ -30,6 +30,8 @@ export type UserMinAggregateOutputType = {
   fullName: string | null
   email: string | null
   passwordHash: string | null
+  totpSecret: string | null
+  totpEnabledAt: Date | null
   role: $Enums.Role | null
   status: $Enums.UserStatus | null
   lastSeenAt: Date | null
@@ -43,6 +45,8 @@ export type UserMaxAggregateOutputType = {
   fullName: string | null
   email: string | null
   passwordHash: string | null
+  totpSecret: string | null
+  totpEnabledAt: Date | null
   role: $Enums.Role | null
   status: $Enums.UserStatus | null
   lastSeenAt: Date | null
@@ -56,6 +60,8 @@ export type UserCountAggregateOutputType = {
   fullName: number
   email: number
   passwordHash: number
+  totpSecret: number
+  totpEnabledAt: number
   role: number
   status: number
   lastSeenAt: number
@@ -71,6 +77,8 @@ export type UserMinAggregateInputType = {
   fullName?: true
   email?: true
   passwordHash?: true
+  totpSecret?: true
+  totpEnabledAt?: true
   role?: true
   status?: true
   lastSeenAt?: true
@@ -84,6 +92,8 @@ export type UserMaxAggregateInputType = {
   fullName?: true
   email?: true
   passwordHash?: true
+  totpSecret?: true
+  totpEnabledAt?: true
   role?: true
   status?: true
   lastSeenAt?: true
@@ -97,6 +107,8 @@ export type UserCountAggregateInputType = {
   fullName?: true
   email?: true
   passwordHash?: true
+  totpSecret?: true
+  totpEnabledAt?: true
   role?: true
   status?: true
   lastSeenAt?: true
@@ -183,6 +195,8 @@ export type UserGroupByOutputType = {
   fullName: string
   email: string
   passwordHash: string | null
+  totpSecret: string | null
+  totpEnabledAt: Date | null
   role: $Enums.Role
   status: $Enums.UserStatus
   lastSeenAt: Date | null
@@ -217,6 +231,8 @@ export type UserWhereInput = {
   fullName?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
   passwordHash?: Prisma.StringNullableFilter<"User"> | string | null
+  totpSecret?: Prisma.StringNullableFilter<"User"> | string | null
+  totpEnabledAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   lastSeenAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -244,6 +260,8 @@ export type UserOrderByWithRelationInput = {
   fullName?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  totpSecret?: Prisma.SortOrderInput | Prisma.SortOrder
+  totpEnabledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   lastSeenAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -274,6 +292,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   foundationId?: Prisma.StringFilter<"User"> | string
   fullName?: Prisma.StringFilter<"User"> | string
   passwordHash?: Prisma.StringNullableFilter<"User"> | string | null
+  totpSecret?: Prisma.StringNullableFilter<"User"> | string | null
+  totpEnabledAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   lastSeenAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -301,6 +321,8 @@ export type UserOrderByWithAggregationInput = {
   fullName?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  totpSecret?: Prisma.SortOrderInput | Prisma.SortOrder
+  totpEnabledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   lastSeenAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -320,6 +342,8 @@ export type UserScalarWhereWithAggregatesInput = {
   fullName?: Prisma.StringWithAggregatesFilter<"User"> | string
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   passwordHash?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  totpSecret?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  totpEnabledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   role?: Prisma.EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
   status?: Prisma.EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
   lastSeenAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
@@ -332,6 +356,8 @@ export type UserCreateInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -359,6 +385,8 @@ export type UserUncheckedCreateInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -384,6 +412,8 @@ export type UserUpdateInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -411,6 +441,8 @@ export type UserUncheckedUpdateInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -437,6 +469,8 @@ export type UserCreateManyInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -449,6 +483,8 @@ export type UserUpdateManyMutationInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -462,6 +498,8 @@ export type UserUncheckedUpdateManyInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -485,6 +523,8 @@ export type UserCountOrderByAggregateInput = {
   fullName?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  totpSecret?: Prisma.SortOrder
+  totpEnabledAt?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   lastSeenAt?: Prisma.SortOrder
@@ -498,6 +538,8 @@ export type UserMaxOrderByAggregateInput = {
   fullName?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  totpSecret?: Prisma.SortOrder
+  totpEnabledAt?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   lastSeenAt?: Prisma.SortOrder
@@ -511,6 +553,8 @@ export type UserMinOrderByAggregateInput = {
   fullName?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  totpSecret?: Prisma.SortOrder
+  totpEnabledAt?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   lastSeenAt?: Prisma.SortOrder
@@ -576,10 +620,6 @@ export type EnumRoleFieldUpdateOperationsInput = {
 
 export type EnumUserStatusFieldUpdateOperationsInput = {
   set?: $Enums.UserStatus
-}
-
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
 }
 
 export type UserCreateNestedOneWithoutInvitationsSentInput = {
@@ -777,6 +817,8 @@ export type UserCreateWithoutFoundationInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -802,6 +844,8 @@ export type UserUncheckedCreateWithoutFoundationInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -857,6 +901,8 @@ export type UserScalarWhereInput = {
   fullName?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
   passwordHash?: Prisma.StringNullableFilter<"User"> | string | null
+  totpSecret?: Prisma.StringNullableFilter<"User"> | string | null
+  totpEnabledAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   lastSeenAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -869,6 +915,8 @@ export type UserCreateWithoutInvitationsSentInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -895,6 +943,8 @@ export type UserUncheckedCreateWithoutInvitationsSentInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -935,6 +985,8 @@ export type UserUpdateWithoutInvitationsSentInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -961,6 +1013,8 @@ export type UserUncheckedUpdateWithoutInvitationsSentInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -985,6 +1039,8 @@ export type UserCreateWithoutRequestsRegisteredInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1011,6 +1067,8 @@ export type UserUncheckedCreateWithoutRequestsRegisteredInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1040,6 +1098,8 @@ export type UserCreateWithoutRequestsAssignedInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1066,6 +1126,8 @@ export type UserUncheckedCreateWithoutRequestsAssignedInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1106,6 +1168,8 @@ export type UserUpdateWithoutRequestsRegisteredInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1132,6 +1196,8 @@ export type UserUncheckedUpdateWithoutRequestsRegisteredInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1167,6 +1233,8 @@ export type UserUpdateWithoutRequestsAssignedInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1193,6 +1261,8 @@ export type UserUncheckedUpdateWithoutRequestsAssignedInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1217,6 +1287,8 @@ export type UserCreateWithoutContributionsInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1243,6 +1315,8 @@ export type UserUncheckedCreateWithoutContributionsInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1283,6 +1357,8 @@ export type UserUpdateWithoutContributionsInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1309,6 +1385,8 @@ export type UserUncheckedUpdateWithoutContributionsInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1333,6 +1411,8 @@ export type UserCreateWithoutProcurementsInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1359,6 +1439,8 @@ export type UserUncheckedCreateWithoutProcurementsInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1399,6 +1481,8 @@ export type UserUpdateWithoutProcurementsInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1425,6 +1509,8 @@ export type UserUncheckedUpdateWithoutProcurementsInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1449,6 +1535,8 @@ export type UserCreateWithoutGoodsReceiptsInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1475,6 +1563,8 @@ export type UserUncheckedCreateWithoutGoodsReceiptsInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1515,6 +1605,8 @@ export type UserUpdateWithoutGoodsReceiptsInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1541,6 +1633,8 @@ export type UserUncheckedUpdateWithoutGoodsReceiptsInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1565,6 +1659,8 @@ export type UserCreateWithoutIssuancesInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1591,6 +1687,8 @@ export type UserUncheckedCreateWithoutIssuancesInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1631,6 +1729,8 @@ export type UserUpdateWithoutIssuancesInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1657,6 +1757,8 @@ export type UserUncheckedUpdateWithoutIssuancesInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1681,6 +1783,8 @@ export type UserCreateWithoutMovementsInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1707,6 +1811,8 @@ export type UserUncheckedCreateWithoutMovementsInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1747,6 +1853,8 @@ export type UserUpdateWithoutMovementsInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1773,6 +1881,8 @@ export type UserUncheckedUpdateWithoutMovementsInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1797,6 +1907,8 @@ export type UserCreateWithoutFilesUploadedInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1823,6 +1935,8 @@ export type UserUncheckedCreateWithoutFilesUploadedInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1863,6 +1977,8 @@ export type UserUpdateWithoutFilesUploadedInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1889,6 +2005,8 @@ export type UserUncheckedUpdateWithoutFilesUploadedInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1913,6 +2031,8 @@ export type UserCreateWithoutAuditLogsInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1939,6 +2059,8 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -1979,6 +2101,8 @@ export type UserUpdateWithoutAuditLogsInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2005,6 +2129,8 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2029,6 +2155,8 @@ export type UserCreateWithoutReportsGeneratedInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -2055,6 +2183,8 @@ export type UserUncheckedCreateWithoutReportsGeneratedInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -2095,6 +2225,8 @@ export type UserUpdateWithoutReportsGeneratedInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2121,6 +2253,8 @@ export type UserUncheckedUpdateWithoutReportsGeneratedInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2145,6 +2279,8 @@ export type UserCreateWithoutRefreshTokensInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -2171,6 +2307,8 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -2211,6 +2349,8 @@ export type UserUpdateWithoutRefreshTokensInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2237,6 +2377,8 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2261,6 +2403,8 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -2287,6 +2431,8 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -2327,6 +2473,8 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2353,6 +2501,8 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2377,6 +2527,8 @@ export type UserCreateManyFoundationInput = {
   fullName: string
   email: string
   passwordHash?: string | null
+  totpSecret?: string | null
+  totpEnabledAt?: Date | string | null
   role: $Enums.Role
   status?: $Enums.UserStatus
   lastSeenAt?: Date | string | null
@@ -2389,6 +2541,8 @@ export type UserUpdateWithoutFoundationInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2414,6 +2568,8 @@ export type UserUncheckedUpdateWithoutFoundationInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2439,6 +2595,8 @@ export type UserUncheckedUpdateManyWithoutFoundationInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2591,6 +2749,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   fullName?: boolean
   email?: boolean
   passwordHash?: boolean
+  totpSecret?: boolean
+  totpEnabledAt?: boolean
   role?: boolean
   status?: boolean
   lastSeenAt?: boolean
@@ -2619,6 +2779,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   fullName?: boolean
   email?: boolean
   passwordHash?: boolean
+  totpSecret?: boolean
+  totpEnabledAt?: boolean
   role?: boolean
   status?: boolean
   lastSeenAt?: boolean
@@ -2633,6 +2795,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   fullName?: boolean
   email?: boolean
   passwordHash?: boolean
+  totpSecret?: boolean
+  totpEnabledAt?: boolean
   role?: boolean
   status?: boolean
   lastSeenAt?: boolean
@@ -2647,6 +2811,8 @@ export type UserSelectScalar = {
   fullName?: boolean
   email?: boolean
   passwordHash?: boolean
+  totpSecret?: boolean
+  totpEnabledAt?: boolean
   role?: boolean
   status?: boolean
   lastSeenAt?: boolean
@@ -2654,7 +2820,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "foundationId" | "fullName" | "email" | "passwordHash" | "role" | "status" | "lastSeenAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "foundationId" | "fullName" | "email" | "passwordHash" | "totpSecret" | "totpEnabledAt" | "role" | "status" | "lastSeenAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   foundation?: boolean | Prisma.FoundationDefaultArgs<ExtArgs>
   invitationsSent?: boolean | Prisma.User$invitationsSentArgs<ExtArgs>
@@ -2703,6 +2869,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     fullName: string
     email: string
     passwordHash: string | null
+    totpSecret: string | null
+    totpEnabledAt: Date | null
     role: $Enums.Role
     status: $Enums.UserStatus
     lastSeenAt: Date | null
@@ -3150,6 +3318,8 @@ export interface UserFieldRefs {
   readonly fullName: Prisma.FieldRef<"User", 'String'>
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly passwordHash: Prisma.FieldRef<"User", 'String'>
+  readonly totpSecret: Prisma.FieldRef<"User", 'String'>
+  readonly totpEnabledAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly role: Prisma.FieldRef<"User", 'Role'>
   readonly status: Prisma.FieldRef<"User", 'UserStatus'>
   readonly lastSeenAt: Prisma.FieldRef<"User", 'DateTime'>

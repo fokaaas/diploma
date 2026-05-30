@@ -525,10 +525,6 @@ export type FoundationScalarRelationFilter = {
   isNot?: Prisma.FoundationWhereInput
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type FoundationCreateNestedOneWithoutUsersInput = {
   create?: Prisma.XOR<Prisma.FoundationCreateWithoutUsersInput, Prisma.FoundationUncheckedCreateWithoutUsersInput>
   connectOrCreate?: Prisma.FoundationCreateOrConnectWithoutUsersInput

@@ -19,6 +19,8 @@ import { PlatformGuard } from '../../common/guards/platform.guard';
 import type { AuthenticatedPrincipal } from '../../common/data/authenticated-principal';
 import { MessageResponse } from '../../common/data/message.response';
 import { AuthTokensResponse } from '../auth/responses/auth-tokens.response';
+import { TwoFactorChallengeResponse } from '../auth/responses/two-factor-challenge.response';
+import { TwoFactorDto } from '../auth/body/two-factor.dto';
 import { RefreshDto } from '../auth/body/refresh.dto';
 import { PlatformService } from './platform.service';
 import { PlatformLoginDto } from './body/platform-login.dto';
@@ -33,10 +35,28 @@ export class PlatformController {
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Вхід суперадміністратора платформи' })
-  @ApiOkResponse({ type: PlatformSessionResponse })
-  login(@Body() dto: PlatformLoginDto): Promise<PlatformSessionResponse> {
+  @ApiOperation({ summary: 'Крок 1 входу суперадміна: пароль → виклик 2FA' })
+  @ApiOkResponse({ type: TwoFactorChallengeResponse })
+  login(@Body() dto: PlatformLoginDto): Promise<TwoFactorChallengeResponse> {
     return this.platform.login(dto);
+  }
+
+  @Public()
+  @Post('2fa/setup')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Перше налаштування 2FA суперадміна' })
+  @ApiOkResponse({ type: PlatformSessionResponse })
+  setupTwoFactor(@Body() dto: TwoFactorDto): Promise<PlatformSessionResponse> {
+    return this.platform.setupTwoFactor(dto);
+  }
+
+  @Public()
+  @Post('2fa/verify')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Крок 2 входу суперадміна: підтвердити код 2FA' })
+  @ApiOkResponse({ type: PlatformSessionResponse })
+  verifyTwoFactor(@Body() dto: TwoFactorDto): Promise<PlatformSessionResponse> {
+    return this.platform.verifyTwoFactor(dto);
   }
 
   @Public()

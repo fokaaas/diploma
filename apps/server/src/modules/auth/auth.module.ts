@@ -9,6 +9,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { TokenService } from './token.service';
 import { PasswordService } from './password.service';
+import { TotpService } from './totp.service';
+import { TwoFactorTicketService } from './two-factor-ticket.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
@@ -28,7 +30,14 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, TokenService, PasswordService, JwtStrategy],
-  exports: [TokenService, PasswordService],
+  providers: [
+    AuthService,
+    TokenService,
+    PasswordService,
+    TotpService,
+    TwoFactorTicketService,
+    JwtStrategy,
+  ],
+  exports: [TokenService, PasswordService, TotpService, TwoFactorTicketService],
 })
 export class AuthModule {}

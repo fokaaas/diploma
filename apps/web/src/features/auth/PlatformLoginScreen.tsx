@@ -1,10 +1,16 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { platformLogin } from '../../lib/api/platform'
+import {
+  platformLogin,
+  platformSetupTwoFactor,
+  platformVerifyTwoFactor,
+} from '../../lib/api/platform'
 import { platformSessionStore } from '../../lib/auth/platform-session'
 import { ApiError } from '../../lib/api/client'
+import type { TwoFactorChallenge } from '../../lib/api/auth'
 import { Icon } from '../../components/ui/Icon'
 import { AuthSide } from './AuthSide'
+import { TwoFactorPanel } from './TwoFactorPanel'
 
 export function PlatformLoginScreen() {
   const navigate = useNavigate()
@@ -12,19 +18,52 @@ export function PlatformLoginScreen() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [challenge, setChallenge] = useState<TwoFactorChallenge | null>(null)
 
   const handleSubmit = async () => {
     setError(null)
     setSubmitting(true)
     try {
-      const session = await platformLogin(email, password)
-      platformSessionStore.set(session)
-      void navigate({ to: '/super-admin' })
+      setChallenge(await platformLogin(email, password))
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Не вдалося увійти')
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const handleTwoFactor = async (code: string) => {
+    if (!challenge) return
+    setError(null)
+    setSubmitting(true)
+    try {
+      const session =
+        challenge.stage === 'SETUP'
+          ? await platformSetupTwoFactor(challenge.ticket, code)
+          : await platformVerifyTwoFactor(challenge.ticket, code)
+      platformSessionStore.set(session)
+      void navigate({ to: '/super-admin' })
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Не вдалося підтвердити код')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (challenge) {
+    return (
+      <div className="auth-wrap">
+        <AuthSide subtitle="Панель платформи для керування фондами-клієнтами та їхніми адміністраторами." />
+        <div className="auth-form-side">
+          <TwoFactorPanel
+            challenge={challenge}
+            submitting={submitting}
+            error={error}
+            onSubmit={(code) => void handleTwoFactor(code)}
+          />
+        </div>
+      </div>
+    )
   }
 
   return (

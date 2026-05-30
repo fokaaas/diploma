@@ -62,6 +62,13 @@ export class UserRepository {
     return this.prisma.user.update({ where: { id }, data: { fullName } });
   }
 
+  setTotp(id: string, totpSecret: string, totpEnabledAt: Date) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { totpSecret, totpEnabledAt },
+    });
+  }
+
   touchLastSeen(id: string) {
     return this.prisma.user.update({
       where: { id },

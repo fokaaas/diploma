@@ -1,4 +1,5 @@
 import { apiFetch } from './client'
+import type { TwoFactorChallenge } from './auth'
 
 export interface PlatformAdmin {
   id: string
@@ -30,10 +31,24 @@ export interface CreateFoundationInput {
   adminEmail: string
 }
 
-export function platformLogin(email: string, password: string): Promise<PlatformSession> {
-  return apiFetch<PlatformSession>('/platform/auth/login', {
+export function platformLogin(email: string, password: string): Promise<TwoFactorChallenge> {
+  return apiFetch<TwoFactorChallenge>('/platform/auth/login', {
     method: 'POST',
     body: { email, password },
+  })
+}
+
+export function platformSetupTwoFactor(ticket: string, code: string): Promise<PlatformSession> {
+  return apiFetch<PlatformSession>('/platform/auth/2fa/setup', {
+    method: 'POST',
+    body: { ticket, code },
+  })
+}
+
+export function platformVerifyTwoFactor(ticket: string, code: string): Promise<PlatformSession> {
+  return apiFetch<PlatformSession>('/platform/auth/2fa/verify', {
+    method: 'POST',
+    body: { ticket, code },
   })
 }
 

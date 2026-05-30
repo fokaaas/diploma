@@ -26,7 +26,9 @@ import { ForgotPasswordDto } from './body/forgot-password.dto';
 import { ResetPasswordDto } from './body/reset-password.dto';
 import { ChangePasswordDto } from './body/change-password.dto';
 import { UpdateProfileDto } from './body/update-profile.dto';
+import { TwoFactorDto } from './body/two-factor.dto';
 import { AuthSessionResponse } from './responses/auth-session.response';
+import { TwoFactorChallengeResponse } from './responses/two-factor-challenge.response';
 import { AuthTokensResponse } from './responses/auth-tokens.response';
 import { SessionUserResponse } from './responses/session-user.response';
 import { InvitationInfoResponse } from './responses/invitation-info.response';
@@ -39,10 +41,32 @@ export class AuthController {
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Вхід користувача фонду (email + пароль)' })
-  @ApiOkResponse({ type: AuthSessionResponse })
-  login(@Body() dto: LoginDto): Promise<AuthSessionResponse> {
+  @ApiOperation({ summary: 'Крок 1 входу: пароль → виклик двофакторної' })
+  @ApiOkResponse({ type: TwoFactorChallengeResponse })
+  login(@Body() dto: LoginDto): Promise<TwoFactorChallengeResponse> {
     return this.auth.login(dto);
+  }
+
+  @Public()
+  @Post('2fa/setup')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Перше налаштування 2FA: підтвердити код → видати токени',
+  })
+  @ApiOkResponse({ type: AuthSessionResponse })
+  setupTwoFactor(@Body() dto: TwoFactorDto): Promise<AuthSessionResponse> {
+    return this.auth.setupTwoFactor(dto);
+  }
+
+  @Public()
+  @Post('2fa/verify')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Крок 2 входу: підтвердити код 2FA → видати токени',
+  })
+  @ApiOkResponse({ type: AuthSessionResponse })
+  verifyTwoFactor(@Body() dto: TwoFactorDto): Promise<AuthSessionResponse> {
+    return this.auth.verifyTwoFactor(dto);
   }
 
   @Public()
@@ -100,13 +124,13 @@ export class AuthController {
   @Post('invitations/:token/accept')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Прийняти запрошення: встановити пароль і активувати акаунт',
+    summary: 'Прийняти запрошення: пароль → налаштування 2FA',
   })
-  @ApiOkResponse({ type: AuthSessionResponse })
+  @ApiOkResponse({ type: TwoFactorChallengeResponse })
   acceptInvitation(
     @Param('token') token: string,
     @Body() dto: AcceptInvitationDto,
-  ): Promise<AuthSessionResponse> {
+  ): Promise<TwoFactorChallengeResponse> {
     return this.auth.acceptInvitation(token, dto);
   }
 

@@ -19,8 +19,12 @@ import { InvitationRepository } from '../../infrastructure/database/repos/invita
 import { PasswordResetRepository } from '../../infrastructure/database/repos/password-reset.repo';
 import { PasswordService } from './password.service';
 import { TokenService } from './token.service';
+import { TotpService } from './totp.service';
+import { TwoFactorTicketService } from './two-factor-ticket.service';
 import type { IssuedTokens } from './data/issued-tokens';
 import type { AuthSessionResponse } from './responses/auth-session.response';
+import type { TwoFactorChallengeResponse } from './responses/two-factor-challenge.response';
+import type { TwoFactorDto } from './body/two-factor.dto';
 import type { AuthTokensResponse } from './responses/auth-tokens.response';
 import type { SessionUserResponse } from './responses/session-user.response';
 import type { InvitationInfoResponse } from './responses/invitation-info.response';
@@ -52,11 +56,13 @@ export class AuthService {
     private readonly passwordResets: PasswordResetRepository,
     private readonly passwords: PasswordService,
     private readonly tokens: TokenService,
+    private readonly totp: TotpService,
+    private readonly ticket: TwoFactorTicketService,
     private readonly email: EmailService,
     @Inject(appConfig.KEY) private readonly app: ConfigType<typeof appConfig>,
   ) {}
 
-  async login(dto: LoginDto): Promise<AuthSessionResponse> {
+  async login(dto: LoginDto): Promise<TwoFactorChallengeResponse> {
     const user = await this.users.findByEmail(dto.email);
     if (!user || !user.passwordHash || user.status !== UserStatus.ACTIVE) {
       throw new UnauthorizedException('Невірний email або пароль');
@@ -65,12 +71,7 @@ export class AuthService {
     if (!valid) {
       throw new UnauthorizedException('Невірний email або пароль');
     }
-    await this.users.touchLastSeen(user.id);
-    const tokens = await this.tokens.issueForUser(user);
-    return this.toSession(
-      { ...user, foundationName: user.foundation.name },
-      tokens,
-    );
+    return this.buildChallenge(user);
   }
 
   async getInvitation(token: string): Promise<InvitationInfoResponse> {
@@ -98,7 +99,7 @@ export class AuthService {
   async acceptInvitation(
     token: string,
     dto: AcceptInvitationDto,
-  ): Promise<AuthSessionResponse> {
+  ): Promise<TwoFactorChallengeResponse> {
     const invitation = await this.invitations.findByToken(token);
     if (!invitation || invitation.status !== InvitationStatus.PENDING) {
       throw new BadRequestException('Запрошення недійсне або вже використане');
@@ -113,9 +114,65 @@ export class AuthService {
     const passwordHash = await this.passwords.hash(dto.password);
     await this.users.activate(user.id, passwordHash);
     await this.invitations.markAccepted(invitation.id);
+    return this.buildChallenge(user);
+  }
+
+  async setupTwoFactor(dto: TwoFactorDto): Promise<AuthSessionResponse> {
+    const payload = await this.ticket.verify(dto.ticket, 'SETUP', 'USER');
+    if (
+      !payload.secret ||
+      !(await this.totp.verifyCode(payload.secret, dto.code))
+    ) {
+      throw new BadRequestException('Невірний код');
+    }
+    await this.users.setTotp(payload.sub, payload.secret, new Date());
+    return this.issueSession(payload.sub);
+  }
+
+  async verifyTwoFactor(dto: TwoFactorDto): Promise<AuthSessionResponse> {
+    const payload = await this.ticket.verify(dto.ticket, 'VERIFY', 'USER');
+    const user = await this.users.findById(payload.sub);
+    if (
+      !user?.totpSecret ||
+      !(await this.totp.verifyCode(user.totpSecret, dto.code))
+    ) {
+      throw new BadRequestException('Невірний код');
+    }
+    return this.issueSession(payload.sub);
+  }
+
+  private async buildChallenge(user: {
+    id: string;
+    email: string;
+    totpEnabledAt: Date | null;
+  }): Promise<TwoFactorChallengeResponse> {
+    const principal = { sub: user.id, type: 'USER' as const };
+    if (user.totpEnabledAt) {
+      return {
+        stage: 'VERIFY',
+        ticket: await this.ticket.signVerify(principal),
+      };
+    }
+    const secret = this.totp.createSecret();
+    const otpauthUri = this.totp.keyUri(user.email, secret);
+    return {
+      stage: 'SETUP',
+      ticket: await this.ticket.signSetup(principal, secret),
+      secret,
+      otpauthUri,
+      qrDataUrl: await this.totp.qr(otpauthUri),
+    };
+  }
+
+  private async issueSession(userId: string): Promise<AuthSessionResponse> {
+    const user = await this.users.findById(userId);
+    if (!user || user.status === UserStatus.BLOCKED) {
+      throw new UnauthorizedException();
+    }
+    await this.users.touchLastSeen(user.id);
     const tokens = await this.tokens.issueForUser(user);
     return this.toSession(
-      { ...user, foundationName: invitation.foundation.name },
+      { ...user, foundationName: user.foundation.name },
       tokens,
     );
   }
