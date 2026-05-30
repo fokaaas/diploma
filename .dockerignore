@@ -1,0 +1,34 @@
+# Dependencies and build outputs (each stage installs/builds fresh)
+node_modules
+**/node_modules
+dist
+**/dist
+
+# Tooling caches
+.turbo
+**/.turbo
+.cache
+**/.cache
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# VCS + IDE
+.git
+.gitignore
+.idea
+.vscode
+.claude
+
+# Local env files — never bake into images. The example is allowed.
+.env
+.env.*
+!.env.docker.example
+
+# Runtime data
+apps/server/uploads
+apps/server/.local
+
+# Logs + OS
+*.log
+.DS_Store
+Thumbs.db

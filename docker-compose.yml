@@ -1,0 +1,87 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-fund}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fund}
+      POSTGRES_DB: ${POSTGRES_DB:-fund}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mail:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_SMTP_PORT:-1025}:1025"   # SMTP intake
+      - "${MAILPIT_UI_PORT:-8025}:8025"     # Web UI
+
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mail:
+        condition: service_started
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://fund:fund@postgres:5432/fund?schema=public}
+      JWT_SECRET: ${JWT_SECRET:-please-change-me-to-a-32-byte-secret}
+      JWT_ACCESS_TTL: ${JWT_ACCESS_TTL:-15m}
+      JWT_REFRESH_TTL_DAYS: ${JWT_REFRESH_TTL_DAYS:-30}
+      WEB_APP_URL: ${WEB_APP_URL:-http://localhost:${WEB_PORT:-8080}}
+      TOTP_ISSUER: ${TOTP_ISSUER:-Фонд-платформа}
+      MAIL_HOST: mail
+      MAIL_PORT: "1025"
+      MAIL_SECURE: "false"
+      MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-no-reply@fund.local}
+      UPLOAD_DIR: /data/uploads
+      PORT: "3000"
+    volumes:
+      - server-uploads:/data/uploads
+    ports:
+      - "${SERVER_PORT:-3000}:3000"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:${SERVER_PORT:-3000}}
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "${WEB_PORT:-8080}:80"
+
+  # One-shot service to seed the platform super-admin.
+  # Run with: docker compose --profile seed run --rm seed
+  seed:
+    profiles: ["seed"]
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://fund:fund@postgres:5432/fund?schema=public}
+      PLATFORM_ADMIN_NAME: ${PLATFORM_ADMIN_NAME:-Super Admin}
+      PLATFORM_ADMIN_EMAIL: ${PLATFORM_ADMIN_EMAIL:-root@platform.local}
+      PLATFORM_ADMIN_PASSWORD: ${PLATFORM_ADMIN_PASSWORD:-please-change-me}
+    working_dir: /repo/apps/server
+    entrypoint: ["pnpm"]
+    command: ["seed"]
+
+volumes:
+  postgres-data:
+  server-uploads:
